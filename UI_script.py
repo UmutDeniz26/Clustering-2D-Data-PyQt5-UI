@@ -8,19 +8,20 @@ import sys
 import cv2
 import numpy as np
 import os
-from Partitioning_Algorithms import Partitioning_Algorithms
+from Clustering_Operations import Clustering_Operations
 
-class PyqtUI(QMainWindow):
+class PyqtUI(QMainWindow, Clustering_Operations):
     def __init__(self, template_path):
-        super().__init__()
+        QMainWindow.__init__(self)
+        Clustering_Operations.__init__(self)
+        
         uic.loadUi(template_path, self)
         self.show()
 
-        self.partitioning_algorithms = Partitioning_Algorithms()
+        self.partitioning_algorithms = Clustering_Operations()
         
         """
         ###################### File Operations ######################
-        
         # Source operations
         self.source_folder.clicked.connect(self.load_image_button);self.source_folder_menu.triggered.connect(self.source_folder.click)
         self.source_export.clicked.connect(self.export_source_image);self.source_export_menu.triggered.connect(self.source_export.click)
@@ -71,21 +72,8 @@ class PyqtUI(QMainWindow):
         # Disable the buttons
         self.change_button_state(self.all_buttons, False)
         """
-        
-
-
-    def admin_print(self):
-        print("Histories. \nSource")
-        print(self.image_operator.source_image_history)
-
-        print("Output")
-        print(self.image_operator.output_image_history)
-
-
-
-
-
-
+    
+    
     #############################################################
 
     ###################### File Operations ######################
