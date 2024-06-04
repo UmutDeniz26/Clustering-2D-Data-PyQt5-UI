@@ -10,16 +10,24 @@ import numpy as np
 import os
 from Clustering_Operations import Clustering_Operations
 
-class PyqtUI(QMainWindow, Clustering_Operations):
+class PyqtUI(QMainWindow):
     def __init__(self, template_path):
-        QMainWindow.__init__(self)
-        Clustering_Operations.__init__(self)
-        
+        #QMainWindow.__init__(self)
+        #Clustering_Operations.__init__(self, data=None)
+        super().__init__()
+
         uic.loadUi(template_path, self)
         self.show()
-
-        self.partitioning_algorithms = Clustering_Operations()
         
+        # Load qrc file
+        # qrc path = src_side/resource.qrc
+        # qrc file = resource.qrc
+        
+
+        self.icon_only_widget.setVisible(True)
+        self.full_menu_widget.setVisible(False)
+        self.sidebar_button.clicked.connect(self.sidebar_button_clicked)
+
         """
         ###################### File Operations ######################
         # Source operations
@@ -152,7 +160,9 @@ class PyqtUI(QMainWindow, Clustering_Operations):
             else:
                 print("Please select a valid path with .jpg or .png or .bmp extension : ", image_save_path)
 
-
+    def sidebar_button_clicked(self):
+        self.full_menu_widget.setVisible(not self.full_menu_widget.isVisible())
+        self.icon_only_widget.setVisible(not self.icon_only_widget.isVisible())
 
 
 
