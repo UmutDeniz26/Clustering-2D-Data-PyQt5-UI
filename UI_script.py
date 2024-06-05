@@ -7,14 +7,17 @@ from PyQt5.QtCore import Qt
 import sys
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 import os
+from PyQt5.QtWidgets import QMainWindow
 from Clustering_Operations import Clustering_Operations
 
-class PyqtUI(QMainWindow):
+# Clustering_Operations requires Point_Matrix class from Data.py from init
+class PyqtUI(QMainWindow, Clustering_Operations):
     def __init__(self, template_path):
-        #QMainWindow.__init__(self)
-        #Clustering_Operations.__init__(self, data=None)
-        super().__init__()
+        Clustering_Operations.__init__(self, data=None)  # Pass 'data' argument
+        QMainWindow.__init__(self , data=None)  # Pass 'data' argument
+
 
         uic.loadUi(template_path, self)
         self.show()
@@ -27,6 +30,11 @@ class PyqtUI(QMainWindow):
         self.icon_only_widget.setVisible(True)
         self.full_menu_widget.setVisible(False)
         self.sidebar_button.clicked.connect(self.sidebar_button_clicked)
+        self.open_data.clicked.connect(self.load_data_button)
+
+        self.clustering_kmeans.clicked.connect(self.buttonClicked)
+        self.clustering_affinity_propagation.clicked.connect(self.buttonClicked)
+        self.clustering_mean_shift.clicked.connect(self.buttonClicked)
 
         """
         ###################### File Operations ######################
@@ -86,80 +94,13 @@ class PyqtUI(QMainWindow):
 
     ###################### File Operations ######################
 
-    def load_image_button(self):
-        
-        # Get the image path
-        image_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', "Image files (*.jpg *.png)")[0]
-        
-        # If the image path is not empty, set the source image
-        if image_path:
-            # Name of the label of the source image is sourceImage
-            self.image_operator.set_source_image(image_path)            
-            self.update_source_image(label_size=(self.source_image.width(), self.source_image.height()))
-
-            # Assign the source image path
-            self.source_image_path = image_path
-
-            # Enable the buttons
-            self.change_button_state(self.all_buttons, True)
+    def load_data_button(self):
+        data_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', "data.txt", "Data files (*.txt)")[0]
+        if data_path:
+            self.set_initial_solution(data_path)
+            self.update_initial_solution()
     
-    def save_output_image(self):
-        # If the folder path is not empty, save the output image
-        if self.source_image_path:
-            self.image_operator.get_output_image().save_image(self.source_image_path)
-
-    def save_as_output_image(self):
-
-        while True:
-            # Get the folder path
-            image_save_path = QtWidgets.QFileDialog.getSaveFileName(
-                self, 'Save file', "output.jpg", "Image files (*.jpg)")[0]
-
-            if not image_save_path:
-                break
-
-            # If the folder path is not empty, save the output image, check extension is jpg
-            if image_save_path.endswith('.jpg'):
-                self.image_operator.get_output_image().save_image(image_save_path)
-                break
-            else:
-                print("Please select a valid path with .jpg extension")
-
-    def export_output_image(self):
-        while True:
-            # Custom extension choice (jpg, png, bmp)
-            image_save_path = QtWidgets.QFileDialog.getSaveFileName(
-                self, 'Save file', "output.jpg", "Image files (*.jpg *.png *.bmp)")[0]
-            
-            if not image_save_path:
-                break
-
-            # If the folder path is not empty, save the output image, check extension is jpg or png or bmp
-            if (image_save_path.endswith('.jpg') or image_save_path.endswith('.png') or image_save_path.endswith('.bmp')):
-                self.image_operator.get_output_image().save_image(image_save_path)
-                break
-            else:
-                print("Please select a valid path with .jpg or .png or .bmp extension : ", image_save_path)
-
-
-
-    def export_source_image(self):
-        while True:
-            # Custom extension choice (jpg, png, bmp)
-            image_save_path = QtWidgets.QFileDialog.getSaveFileName(
-                self, 'Save file', "source.jpg", "Image files (*.jpg *.png *.bmp)")[0]
-            
-            # If the folder path is not empty, save the output image
-            if not image_save_path:
-                break
-
-            # If the folder path is not empty, save the output image, check extension is jpg or png or bmp
-            if (image_save_path.endswith('.jpg') or image_save_path.endswith('.png') or image_save_path.endswith('.bmp')):
-                self.image_operator.get_source_image().save_image(image_save_path)
-                break
-            else:
-                print("Please select a valid path with .jpg or .png or .bmp extension : ", image_save_path)
-
+    
     def sidebar_button_clicked(self):
         self.full_menu_widget.setVisible(not self.full_menu_widget.isVisible())
         self.icon_only_widget.setVisible(not self.icon_only_widget.isVisible())
@@ -176,50 +117,64 @@ class PyqtUI(QMainWindow):
 
     ##############################################################
 
-    ###################### Image Operations ######################
+    ###################### Data Operations ######################
 
 
     # Display functions
-    def update_source_image(self, label_size=(400, 400)):
-        self.source_image.setPixmap(
-            QPixmap.fromImage(
-                self.image_operator.get_source_image().get_QImage()
-            ).scaled(label_size[0], label_size[1])
-        )
-        self.source_image.setAlignment(Qt.AlignCenter)
-    
-    def update_output_image(self, label_size=(400, 400)):
-        try:
-            self.output_image.setPixmap(
-                QPixmap.fromImage(
-                    self.image_operator.get_output_image().get_QImage()
-                ).scaled(label_size[0], label_size[1])
-            )
-            self.output_image.setAlignment(Qt.AlignCenter)
-        except:
-            if len (self.image_operator.get_output_image().get_nd_image().shape) < 2:
-                # it means img is numpy array that comes from segmentation
-                self.output_image.setPixmap(
-                    QPixmap.fromImage(
-                        self.image_operator.get_output_image().get_nd_image()
-                    ).scaled(label_size[0], label_size[1])
-                )
-                self.output_image.setAlignment(Qt.AlignCenter)
-            else:
-                print("Error in update_output_image, image shape: ", self.image_operator.get_output_image().get_nd_image().shape)
-            
+    def update_initial_solution(self, label_size=(400, 400)):
+        # get plot
+        initial_solution_data = self.get_initial_solution().get_data_as_list()
+        
+        # 2D plot
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        for point in initial_solution_data:
+            ax.scatter(point[0], point[1], c='black')
+        
+        # Convert plot to pixmap
+        pixmap = self.plot_to_pixmap(fig, label_size)
+        self.monitor_initial_solution.setPixmap(pixmap)
+        plt.close(fig)
 
-    # Conversion functions
-    def convert_to_gray(self):
-        img = self.image_operator.convesion_actions(method='gray')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
+    def update_final_solution(self, label_size=(400, 400)):
+        # get plot
+        final_solution_data = self.get_final_solution().get_data_as_list()
+        
+        # 2D plot
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        for point in final_solution_data:
+            ax.scatter(point[0], point[1])
+        
+        # Convert plot to pixmap
+        pixmap = self.plot_to_pixmap(fig, label_size)
+        self.monitor_final_solution.setPixmap(pixmap)
+        plt.close(fig)
 
-    def convert_to_hsv(self):
-        img = self.image_operator.convesion_actions(method='hsv')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
+    def plot_to_pixmap(self, fig, label_size):
+        fig.canvas.draw()
+        img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+        img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        img = cv2.resize(img, label_size)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        return self.cv2_to_pixmap(img)
 
+    def cv2_to_pixmap(self, img):
+        height, width, channel = img.shape
+        bytesPerLine = 3 * width
+        qImg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        return QPixmap(qImg)
+        
+    # Clustering functions
+
+    def buttonClicked(self):
+        sender = self.sender()
+        print(sender.text())
+        self.method_handler(sender.text())
 
     # Clear functions
     def clear_source_image(self):
@@ -235,46 +190,7 @@ class PyqtUI(QMainWindow):
         self.output_image.clear()
 
 
-    # Segmentation functions
-    def segment_multi_otsu_f(self):
-        img = self.image_operator.segment_image(method='multi_otsu')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
-    def segment_chan_vese_f(self):
-        img = self.image_operator.segment_image(method='chan_vese')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
-    def segment_moprh_snakes_f(self):
-        img = self.image_operator.segment_image(method='morph_snakes')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
-
     # Edge detection functions
-    def edge_roberts_f(self):
-        img = self.image_operator.edge_detection_actions(method='roberts')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
-    def edge_sobel_f(self):
-        img = self.image_operator.edge_detection_actions(method='sobel')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
-    def edge_scharr_f(self):
-        img = self.image_operator.edge_detection_actions(method='scharr')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
-    def edge_prewitt_f(self):
-        img = self.image_operator.edge_detection_actions(method='prewitt')
-        self.image_operator.set_output_image(img)
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
-
-
 
 
 

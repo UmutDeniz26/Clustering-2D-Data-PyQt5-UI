@@ -1,24 +1,35 @@
+
+# Class to represent a point in 3D space
 class Point:
-    def __init__(self, x, y, z):
-        self.x = float(x)
-        self.y = float(y)
-        self.z = float(z)
+    def __init__(self, x, y, z, cluster_id=None):
+        self.__x = float(x)
+        self.__y = float(y)
+        self.__z = float(z)
+        self.set_cluster_id(cluster_id)
 
     def __str__(self):
-        return f"({self.x}, {self.y}, {self.z})"
+        return f"({self.__x}, {self.__y}, {self.__z}), Cluster: {self.get_cluster_id()}\n"
 
-    def get_coordinates(self):
-        return self.x, self.y, self.z
+    def set_cluster_id(self, cluster_id):
+        self.__cluster_id = cluster_id
+
+    def get_cluster_id(self):
+        return self.__cluster_id
     
     def set_coordinates(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
+        self.__x = x
+        self.__y = y
+        self.__z = z
+    
+    def get_coordinates(self):
+        return self.__x, self.__y, self.__z
 
+# Class to represent a matrix of points
 class Point_Matrix:
     def __init__(self, filename= None, data=None):
         self.set_filename(filename)
         self.set_data(data)
+        self.set_cluster_vector({})
 
     def load_data(self, filename=None):
 
@@ -45,9 +56,13 @@ class Point_Matrix:
         except FileNotFoundError:
             print("File not found.")
 
+    def set_cluster_vector(self, cluster_vector:dict):
+        self.cluster_vector = cluster_vector
+
+    def get_cluster_vector(self):
+        return self.cluster_vector
 
     def set_data(self, data):
-        print(data)
         if isinstance(data, list):
             for point in data:
                 print(point)
@@ -64,6 +79,12 @@ class Point_Matrix:
 
     def get_data(self):
         return self.data
+    
+    def get_data_as_list(self):
+        data = []
+        for point in self.get_data():
+            data.append(point.get_coordinates())
+        return data
 
     def clear_data(self):
         self.data = []

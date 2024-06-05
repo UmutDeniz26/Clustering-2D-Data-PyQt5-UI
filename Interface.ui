@@ -59,7 +59,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="#010_sidebar/resource.qrc">:/icon/icon/Logo.png</pixmap>
+            <pixmap>:/icon/icon/Logo.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -74,12 +74,12 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="home_btn_1">
+          <widget class="QPushButton" name="open_data">
            <property name="text">
-            <string/>
+            <string>Open Data</string>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/home-4-32.ico</normaloff>
              <normalon>:/icon/icon/home-4-48.ico</normalon>:/icon/icon/home-4-32.ico</iconset>
            </property>
@@ -103,7 +103,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/dashboard-5-32.ico</normaloff>
              <normalon>:/icon/icon/dashboard-5-48.ico</normalon>:/icon/icon/dashboard-5-32.ico</iconset>
            </property>
@@ -127,7 +127,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/activity-feed-32.ico</normaloff>
              <normalon>:/icon/icon/activity-feed-48.ico</normalon>:/icon/icon/activity-feed-32.ico</iconset>
            </property>
@@ -151,7 +151,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/product-32.ico</normaloff>
              <normalon>:/icon/icon/product-48.ico</normalon>:/icon/icon/product-32.ico</iconset>
            </property>
@@ -175,7 +175,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/group-32.ico</normaloff>
              <normalon>:/icon/icon/group-48.ico</normalon>:/icon/icon/group-32.ico</iconset>
            </property>
@@ -214,7 +214,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="#010_sidebar/resource.qrc">
+          <iconset>
            <normaloff>:/icon/icon/close-window-64.ico</normaloff>:/icon/icon/close-window-64.ico</iconset>
          </property>
          <property name="iconSize">
@@ -254,7 +254,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="#010_sidebar/resource.qrc">:/icon/icon/Logo.png</pixmap>
+            <pixmap>:/icon/icon/Logo.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -286,7 +286,7 @@
             <string>Home</string>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/home-4-32.ico</normaloff>
              <normalon>:/icon/icon/home-4-48.ico</normalon>:/icon/icon/home-4-32.ico</iconset>
            </property>
@@ -310,7 +310,7 @@
             <string>Dashboard</string>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/dashboard-5-32.ico</normaloff>
              <normalon>:/icon/icon/dashboard-5-48.ico</normalon>:/icon/icon/dashboard-5-32.ico</iconset>
            </property>
@@ -334,7 +334,7 @@
             <string>Orders</string>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/activity-feed-32.ico</normaloff>
              <normalon>:/icon/icon/activity-feed-48.ico</normalon>:/icon/icon/activity-feed-32.ico</iconset>
            </property>
@@ -358,7 +358,7 @@
             <string>Products</string>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/product-32.ico</normaloff>
              <normalon>:/icon/icon/product-48.ico</normalon>:/icon/icon/product-32.ico</iconset>
            </property>
@@ -382,7 +382,7 @@
             <string>Customers</string>
            </property>
            <property name="icon">
-            <iconset resource="#010_sidebar/resource.qrc">
+            <iconset>
              <normaloff>:/icon/icon/group-32.ico</normaloff>
              <normalon>:/icon/icon/group-48.ico</normalon>:/icon/icon/group-32.ico</iconset>
            </property>
@@ -421,7 +421,7 @@
           <string>Exit</string>
          </property>
          <property name="icon">
-          <iconset resource="#010_sidebar/resource.qrc">
+          <iconset>
            <normaloff>:/icon/icon/close-window-64.ico</normaloff>:/icon/icon/close-window-64.ico</iconset>
          </property>
          <property name="iconSize">
@@ -586,7 +586,7 @@
          <property name="title">
           <string>Solutions</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QGroupBox" name="groupBox_9">
             <property name="title">
@@ -594,7 +594,11 @@
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_10">
              <item>
-              <widget class="QGraphicsView" name="monitor_initial_solution"/>
+              <widget class="QLabel" name="monitor_initial_solution">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -606,7 +610,11 @@
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_11">
              <item>
-              <widget class="QGraphicsView" name="monitor_final_solution"/>
+              <widget class="QLabel" name="monitor_final_solution">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -667,7 +675,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="#010_sidebar/resource.qrc">
+         <iconset>
           <normaloff>:/icon/icon/menu-4-32.ico</normaloff>:/icon/icon/menu-4-32.ico</iconset>
         </property>
         <property name="iconSize">
