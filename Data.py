@@ -106,11 +106,16 @@ class Point_Matrix:
     def get_filename(self):
         return self.filename
 
-    def save_data(self, solution, filename=None):
+    def save_data(self, solution=None, filename=None):
         
         # Set filename if provided
         if filename is not None:
             self.set_filename(filename) 
+
+        if solution is None:
+            solution = "\n".join([f"{x} {y}" for x, y in self.get_data_as_list()])
+        else:
+            solution = "\n".join([f"{x} {y}" for x, y in solution])
 
         try:
             with open(self.get_filename(), 'w') as file:

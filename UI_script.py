@@ -27,16 +27,12 @@ class PyqtUI(QMainWindow, Clustering_Operations):
         # qrc file = resource.qrc
         
 
-        self.icon_only_widget.setVisible(True)
         self.full_menu_widget.setVisible(False)
         self.open_data.clicked.connect(self.load_data_button)
 
-        self.clustering_kmeans.clicked.connect(self.buttonClicked)
-        self.clustering_affinity_propagation.clicked.connect(self.buttonClicked)
-        self.clustering_mean_shift.clicked.connect(self.buttonClicked)
-        self.clustering_spectral_clustering.clicked.connect(self.buttonClicked)
-        self.clustering_hiearchical_clustering.clicked.connect(self.buttonClicked)
-        self.clustering_DBSCAN.clicked.connect(self.buttonClicked)
+        self.side_menu_buttons = [ self.initial_solution_side, self.final_solution_side, self.clustering_side, self.heuristics_side ]
+        for button in self.side_menu_buttons:
+            button.clicked.connect(self.sidebar_button_clicked)
 
 
         """
@@ -104,10 +100,71 @@ class PyqtUI(QMainWindow, Clustering_Operations):
             self.plot_initial_solution()
     
     
-    def sidebar_button_clicked(self):
-        self.full_menu_widget.setVisible(not self.full_menu_widget.isVisible())
-        self.icon_only_widget.setVisible(not self.icon_only_widget.isVisible())
 
+    ###################### Side Bar ######################
+    
+    def sidebar_button_clicked(self):
+        sender = self.sender()
+
+        if not hasattr(self, 'hold_sender') or self.hold_sender != sender or not self.full_menu_widget.isVisible():
+            self.full_menu_widget.setVisible(True)
+        else:
+            self.full_menu_widget.setVisible(False)
+
+        self.edit_full_menu_buttons(sender, self.toolbox_layout)    
+        
+        self.hold_sender = sender
+
+    def edit_full_menu_buttons(self, sender, container):
+        # Clear buttons of the container
+        for i in reversed(range(container.count())):
+            container.itemAt(i).widget().setParent(None)
+        
+        if sender == self.initial_solution_side:
+            # Buttons to add
+            button_names = ['Save As', 'Save', 'Export As', 'Undo', 'Redo']
+
+            # Add buttons to the container
+            for button_name in button_names:
+                button = QtWidgets.QPushButton(button_name)
+                button.clicked.connect(self.initial_solution_button_clicked)
+                container.addWidget(button)
+
+        elif sender == self.final_solution_side:
+            # Buttons to add
+            button_names = ['Save As', 'Save', 'Export As', 'Undo', 'Redo']
+
+            # Add buttons to the container
+            for button_name in button_names:
+                button = QtWidgets.QPushButton(button_name)
+                button.clicked.connect(self.final_solution_button_clicked)
+                container.addWidget(button)
+
+        elif sender == self.clustering_side:
+            # Buttons to add
+            button_names = ['K-Means', 'Affinity Propagation', 'Mean Shift', 'Spectral Clustering', 'Hierarchical Clustering', 'DBSCAN']
+
+            # Add buttons to the container
+            for button_name in button_names:
+                button = QtWidgets.QPushButton(button_name)
+                button.clicked.connect(self.clustering_button_clicked)
+                container.addWidget(button)
+
+        elif sender == self.heuristics_side:
+            # Buttons to add
+            button_names = ['Hill Climbing', 'Simulated Annealing']
+
+            # Add buttons to the container
+            for button_name in button_names:
+                button = QtWidgets.QPushButton(button_name)
+                button.clicked.connect(self.heuristics_button_clicked)
+                container.addWidget(button)
+
+            
+
+        
+        
+        
 
 
 
@@ -161,13 +218,50 @@ class PyqtUI(QMainWindow, Clustering_Operations):
                 for cluster_id in cluster_id_vector:
                     ax.scatter(cluster_id[0], cluster_id[1], c='red', s=100, marker='x')
             except:
-                pass
+                print("Cluster id vector is empty.")
 
             # Convert plot to pixmap
             pixmap = self.plot_to_pixmap(fig, label_size)
             self.monitor_final_solution.setPixmap(pixmap)
             plt.close(fig)
 
+        
+    # Clustering functions
+
+    def clustering_button_clicked(self):
+        sender = self.sender()
+        print(sender.text())
+        self.method_handler(sender.text())
+        #print(self.get_cluster_vector())
+        #print(self.get_cluster_id_vector())
+        self.plot_final_solution()
+
+    # Heuristics functions
+
+    def heuristics_button_clicked(self):
+        sender = self.sender()
+        print(sender.text())
+
+    def initial_solution_button_clicked(self):
+        sender = self.sender()
+        print(sender.text())        
+
+    def final_solution_button_clicked(self):
+        sender = self.sender()
+        print(sender.text())
+
+
+    ##############################################################
+
+    ###################### Common Operations #####################
+
+    def exit_app(self):
+        sys.exit()
+       
+    def change_button_state(self, button, state):
+        for button in self.all_buttons:
+            if button not in self.always_display_buttons:
+                button.setDisabled(False) if state else button.setDisabled(True)
 
     def plot_to_pixmap(self, fig, label_size):
         fig.canvas.draw()
@@ -182,29 +276,7 @@ class PyqtUI(QMainWindow, Clustering_Operations):
         bytesPerLine = 3 * width
         qImg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
         return QPixmap(qImg)
-        
-    # Clustering functions
 
-    def buttonClicked(self):
-        sender = self.sender()
-        print(sender.text())
-        self.method_handler(sender.text())
-        print(self.get_cluster_vector())
-        print(self.get_cluster_id_vector())
-        self.plot_final_solution()
-
-
-    ##############################################################
-
-    ###################### Common Operations #####################
-
-    def exit_app(self):
-        sys.exit()
-       
-    def change_button_state(self, button, state):
-        for button in self.all_buttons:
-            if button not in self.always_display_buttons:
-                button.setDisabled(False) if state else button.setDisabled(True)
 
 if __name__ == '__main__':
     print("Testing UI_Script class")

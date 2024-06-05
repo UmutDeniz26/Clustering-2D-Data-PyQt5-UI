@@ -23,6 +23,12 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="1" rowspan="2">
      <widget class="QWidget" name="full_menu_widget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -183,23 +189,6 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QPushButton" name="exit_btn_2">
-         <property name="text">
-          <string>Exit</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>:/icon/icon/close-window-64.ico</normaloff>:/icon/icon/close-window-64.ico</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>14</width>
-           <height>14</height>
-          </size>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
@@ -215,18 +204,14 @@
        <string>Operator</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="1" rowspan="4">
+       <item row="0" column="0" rowspan="3">
         <widget class="QGroupBox" name="groupBox_15">
          <property name="title">
           <string>Manual Operations</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Nodes</string>
-            </property>
-           </widget>
+          <item row="1" column="1">
+           <widget class="QTextEdit" name="manual_nodes"/>
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
@@ -235,100 +220,21 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Nodes</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QTextEdit" name="manual_hubs"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="QTextEdit" name="manual_nodes"/>
           </item>
           <item row="2" column="0" colspan="2">
            <widget class="QPushButton" name="manula_run">
             <property name="text">
              <string>Run</string>
             </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="title">
-          <string>Grouping Operations</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QGroupBox" name="groupBox_6">
-            <property name="title">
-             <string>Heuristics</string>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <item>
-              <widget class="QPushButton" name="heuristics_hill_climb">
-               <property name="text">
-                <string>Hill Climb</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="heuristics_simulated_anneling">
-               <property name="text">
-                <string>Simmulated Anneling</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_5">
-            <property name="title">
-             <string>Clustering</string>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QPushButton" name="clustering_kmeans">
-               <property name="text">
-                <string>K-Means</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="clustering_affinity_propagation">
-               <property name="text">
-                <string>Affinity Propagation</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="clustering_mean_shift">
-               <property name="text">
-                <string>Mean Shift</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="clustering_spectral_clustering">
-               <property name="text">
-                <string>Spectral Clustering</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="clustering_hiearchical_clustering">
-               <property name="text">
-                <string>Hiearchical Clustering</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="clustering_DBSCAN">
-               <property name="text">
-                <string>DBSCAN</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
            </widget>
           </item>
          </layout>
@@ -414,7 +320,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="home_btn_1">
+          <widget class="QPushButton" name="initial_solution_side">
            <property name="text">
             <string>Initial Solution</string>
            </property>
@@ -460,14 +366,13 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="products_btn_1">
+          <widget class="QPushButton" name="clustering_side">
            <property name="text">
             <string>Clustering</string>
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/icon/icon/product-32.ico</normaloff>
-             <normalon>:/icon/icon/product-48.ico</normalon>:/icon/icon/product-32.ico</iconset>
+             <normaloff>src/icons/UI Basic GLYPH-113.svg</normaloff>src/icons/UI Basic GLYPH-113.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -484,14 +389,13 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="initial_solution_side">
+          <widget class="QPushButton" name="heuristics_side">
            <property name="text">
             <string>Heuristics</string>
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/icon/icon/group-32.ico</normaloff>
-             <normalon>:/icon/icon/group-48.ico</normalon>:/icon/icon/group-32.ico</iconset>
+             <normaloff>src/icons/UI Basic GLYPH-100.svg</normaloff>src/icons/UI Basic GLYPH-100.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -525,11 +429,11 @@
        <item>
         <widget class="QPushButton" name="exit_btn_1">
          <property name="text">
-          <string/>
+          <string>Exit</string>
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>:/icon/icon/close-window-64.ico</normaloff>:/icon/icon/close-window-64.ico</iconset>
+           <normaloff>src/icons/UI Basic GLYPH-46.svg</normaloff>src/icons/UI Basic GLYPH-46.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
