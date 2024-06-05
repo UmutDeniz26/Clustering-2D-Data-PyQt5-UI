@@ -29,12 +29,15 @@ class PyqtUI(QMainWindow, Clustering_Operations):
 
         self.icon_only_widget.setVisible(True)
         self.full_menu_widget.setVisible(False)
-        self.sidebar_button.clicked.connect(self.sidebar_button_clicked)
         self.open_data.clicked.connect(self.load_data_button)
 
         self.clustering_kmeans.clicked.connect(self.buttonClicked)
         self.clustering_affinity_propagation.clicked.connect(self.buttonClicked)
         self.clustering_mean_shift.clicked.connect(self.buttonClicked)
+        self.clustering_spectral_clustering.clicked.connect(self.buttonClicked)
+        self.clustering_hiearchical_clustering.clicked.connect(self.buttonClicked)
+        self.clustering_DBSCAN.clicked.connect(self.buttonClicked)
+
 
         """
         ###################### File Operations ######################
@@ -97,16 +100,13 @@ class PyqtUI(QMainWindow, Clustering_Operations):
     def load_data_button(self):
         data_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', "data.txt", "Data files (*.txt)")[0]
         if data_path:
-            self.set_initial_solution(data_path)
-            self.update_initial_solution()
+            self.load_data(data_path)
+            self.plot_initial_solution()
     
     
     def sidebar_button_clicked(self):
         self.full_menu_widget.setVisible(not self.full_menu_widget.isVisible())
         self.icon_only_widget.setVisible(not self.icon_only_widget.isVisible())
-
-
-
 
 
 
@@ -121,9 +121,9 @@ class PyqtUI(QMainWindow, Clustering_Operations):
 
 
     # Display functions
-    def update_initial_solution(self, label_size=(400, 400)):
+    def plot_initial_solution(self, label_size=(400, 400)):
         # get plot
-        initial_solution_data = self.get_initial_solution().get_data_as_list()
+        initial_solution_data = self.get_data_as_list()
         
         # 2D plot
         fig = plt.figure()
@@ -138,22 +138,36 @@ class PyqtUI(QMainWindow, Clustering_Operations):
         self.monitor_initial_solution.setPixmap(pixmap)
         plt.close(fig)
 
-    def update_final_solution(self, label_size=(400, 400)):
-        # get plot
-        final_solution_data = self.get_final_solution().get_data_as_list()
-        
-        # 2D plot
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.set_xlabel('X Label')
-        ax.set_ylabel('Y Label')
-        for point in final_solution_data:
-            ax.scatter(point[0], point[1])
-        
-        # Convert plot to pixmap
-        pixmap = self.plot_to_pixmap(fig, label_size)
-        self.monitor_final_solution.setPixmap(pixmap)
-        plt.close(fig)
+    def plot_final_solution(self, label_size=(400, 400)):
+        if len(self.get_cluster_vector()) == 0:
+            raise ValueError("Cluster vector is empty.")
+        else:
+            cluster_vector = self.get_cluster_vector()
+            cluster_id_vector = self.get_cluster_id_vector()
+            data = self.get_data_as_list()
+
+            # 2D plot
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            ax.set_xlabel('X Label')
+            ax.set_ylabel('Y Label')
+
+            color_list = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta', 'brown']
+
+            for i in range(len(data)):
+                ax.scatter(data[i][0], data[i][1], c=color_list[cluster_vector[i]])
+            
+            try:
+                for cluster_id in cluster_id_vector:
+                    ax.scatter(cluster_id[0], cluster_id[1], c='red', s=100, marker='x')
+            except:
+                pass
+
+            # Convert plot to pixmap
+            pixmap = self.plot_to_pixmap(fig, label_size)
+            self.monitor_final_solution.setPixmap(pixmap)
+            plt.close(fig)
+
 
     def plot_to_pixmap(self, fig, label_size):
         fig.canvas.draw()
@@ -175,23 +189,9 @@ class PyqtUI(QMainWindow, Clustering_Operations):
         sender = self.sender()
         print(sender.text())
         self.method_handler(sender.text())
-
-    # Clear functions
-    def clear_source_image(self):
-        
-        self.image_operator.set_source_image(None);self.source_image_path = None
-        self.image_operator.source_image_history = {"image_history":[], "current_index":-1}
-
-        self.change_button_state(self.all_buttons, False)
-        self.source_image.clear()
-
-    def clear_output_image(self):
-        self.image_operator.output_image_history = {"image_history":[], "current_index":-1}
-        self.output_image.clear()
-
-
-    # Edge detection functions
-
+        print(self.get_cluster_vector())
+        print(self.get_cluster_id_vector())
+        self.plot_final_solution()
 
 
     ##############################################################
@@ -205,15 +205,6 @@ class PyqtUI(QMainWindow, Clustering_Operations):
         for button in self.all_buttons:
             if button not in self.always_display_buttons:
                 button.setDisabled(False) if state else button.setDisabled(True)
-
-    def undo_output_image(self):
-        self.image_operator.undo_output_image()
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
-    def redo_output_image(self):
-        self.image_operator.redo_output_image()
-        self.update_output_image(label_size=(self.output_image.width(), self.output_image.height()))
-
 
 if __name__ == '__main__':
     print("Testing UI_Script class")
