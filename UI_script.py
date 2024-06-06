@@ -11,22 +11,15 @@ import matplotlib.pyplot as plt
 import os
 from PyQt5.QtWidgets import QMainWindow
 from Clustering_Operations import Clustering_Operations
-
+from Heuristic_Operatipns import Heuristic_Operations
 # Clustering_Operations requires Point_Matrix class from Data.py from init
-class PyqtUI(QMainWindow, Clustering_Operations):
+class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def __init__(self, template_path):
-        Clustering_Operations.__init__(self, data=None)  # Pass 'data' argument
-        QMainWindow.__init__(self , data=None)  # Pass 'data' argument
-
+        super(PyqtUI, self).__init__( data = None )
 
         uic.loadUi(template_path, self)
         self.show()
         
-        # Load qrc file
-        # qrc path = src_side/resource.qrc
-        # qrc file = resource.qrc
-        
-
         self.full_menu_widget.setVisible(False)
         self.open_data.clicked.connect(self.load_data_button)
 
@@ -34,59 +27,42 @@ class PyqtUI(QMainWindow, Clustering_Operations):
         for button in self.side_menu_buttons:
             button.clicked.connect(self.sidebar_button_clicked)
 
+        self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.menu_exit, self.menu_file]
 
-        """
-        ###################### File Operations ######################
-        # Source operations
-        self.source_folder.clicked.connect(self.load_image_button);self.source_folder_menu.triggered.connect(self.source_folder.click)
-        self.source_export.clicked.connect(self.export_source_image);self.source_export_menu.triggered.connect(self.source_export.click)
+        self.disable_all_buttons()
 
-        # Output operations
-        self.output_save.clicked.connect(self.save_output_image);self.output_save_menu.triggered.connect(self.output_save.click)
-        self.output_save_as.clicked.connect(self.save_as_output_image);self.output_save_as_menu.triggered.connect(self.output_save_as.click)
-        self.output_export.clicked.connect(self.export_output_image);self.output_export_menu.triggered.connect(self.output_export.click)
-        
-        ###################### Common Operations #####################
-        self.output_undo.clicked.connect(self.undo_output_image);self.output_undo_menu.triggered.connect(self.output_undo.click)
-        self.output_redo.clicked.connect(self.redo_output_image);self.output_redo_menu.triggered.connect(self.output_redo.click)
-        self.exit_menu.triggered.connect(self.exit_app)                
-        self.source_clear_menu.triggered.connect(self.clear_source_image)
-        self.output_clear_menu.triggered.connect(self.clear_output_image)
+        print("UI_Script class initialized.")
+        print("All buttons: ", self.get_buttons())
 
 
-        self.admin_print_menu.triggered.connect(self.admin_print)
 
-        # Button lists
-        self.all_buttons = [
-            self.source_folder, self.source_folder_menu, self.source_export_menu, self.source_clear_menu, self.source_export, self.source_undo
-                    
+    ###################### UI Operations ######################
+
+    def get_buttons(self):
+        buttons = []
+        for button in self.findChildren(QtWidgets.QPushButton):
+            buttons.append(button)
+
+        for button in self.findChildren(QtWidgets.QMenu):
+            buttons.append(button)
+
+        buttons.append(self.menu_save_initial_solution)
+        buttons.append(self.menu_save_final_solution)
+
+        return buttons
+    
+    def disable_all_buttons(self):
+        # Get all buttons except the always display buttons
+        for button in self.get_buttons():
+            if button in self.always_display_buttons:
+                continue
+            button.setDisabled(True)
+
+
+    def enable_buttons(self):
+        for button in self.get_buttons():
+            button.setDisabled(False)
             
-            ,self.output_save, self.output_save_as,self.output_undo_menu,self.output_save_menu, self.output_save_as_menu, self.output_export_menu,self.output_clear_menu,self.output_redo_menu
-            ,self.output_export, self.output_undo, self.output_redo
-            
-            ,self.bgr_2_gray, self.bgr_2_hsv
-
-            ,self.segment_multi_otsu, self.segment_chan_vese, self.segment_moprh_snakes
-
-            ,self.edge_roberts, self.edge_sobel, self.edge_scharr, self.edge_prewitt
-
-            ,self.exit_menu
-        ]
-
-        self.menu_buttons = [
-            self.source_folder_menu, self.source_export_menu, self.source_clear_menu, 
-            self.output_save_menu, self.output_save_as_menu, self.output_export_menu, self.output_clear_menu, self.output_undo_menu, self.output_redo_menu
-        ]
-
-
-        # Always display buttons
-        self.always_display_buttons = [
-            self.source_folder,self.source_folder_menu, self.exit_menu
-        ]
-        
-        # Disable the buttons
-        self.change_button_state(self.all_buttons, False)
-        """
     
     
     #############################################################
@@ -98,6 +74,7 @@ class PyqtUI(QMainWindow, Clustering_Operations):
         if data_path:
             self.load_data(data_path)
             self.plot_initial_solution()
+            self.enable_buttons()
     
     
 
@@ -118,25 +95,31 @@ class PyqtUI(QMainWindow, Clustering_Operations):
     def edit_full_menu_buttons(self, sender, container):
         # Clear buttons of the container
         for i in reversed(range(container.count())):
-            container.itemAt(i).widget().setParent(None)
+            container.itemAt(i).widget().deleteLater()
         
         if sender == self.initial_solution_side:
             # Buttons to add
             button_names = ['Save As', 'Save', 'Export As', 'Undo', 'Redo']
+            button_object_names = ['side_initial_save_as', 'side_initial_save', 'side_initial_export_as', 'side_initial_undo', 'side_initial_redo']
 
             # Add buttons to the container
-            for button_name in button_names:
+            for i,button_name in enumerate(button_names):
                 button = QtWidgets.QPushButton(button_name)
+                button.setObjectName(button_object_names[i])
+
                 button.clicked.connect(self.initial_solution_button_clicked)
                 container.addWidget(button)
 
         elif sender == self.final_solution_side:
             # Buttons to add
             button_names = ['Save As', 'Save', 'Export As', 'Undo', 'Redo']
+            button_object_names = ['side_final_save_as', 'side_final_save', 'side_final_export_as', 'side_final_undo', 'side_final_redo']
 
             # Add buttons to the container
-            for button_name in button_names:
+            for i,button_name in enumerate(button_names):
                 button = QtWidgets.QPushButton(button_name)
+                button.setObjectName(button_object_names[i])
+
                 button.clicked.connect(self.final_solution_button_clicked)
                 container.addWidget(button)
 
@@ -231,16 +214,14 @@ class PyqtUI(QMainWindow, Clustering_Operations):
     def clustering_button_clicked(self):
         sender = self.sender()
         print(sender.text())
-        self.method_handler(sender.text())
-        #print(self.get_cluster_vector())
-        #print(self.get_cluster_id_vector())
+        self.method_handler_clustering(sender.text())
         self.plot_final_solution()
 
     # Heuristics functions
 
     def heuristics_button_clicked(self):
         sender = self.sender()
-        print(sender.text())
+        self.method_handler_heuristics(sender.text())
 
     def initial_solution_button_clicked(self):
         sender = self.sender()

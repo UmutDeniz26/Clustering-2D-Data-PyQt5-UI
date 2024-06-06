@@ -14,7 +14,7 @@ class Clustering_Operations( Point_Matrix ):
         """
         Point_Matrix.__init__(self, data)
         
-    def method_handler(self,method_name):
+    def method_handler_clustering(self,method_name):
         if method_name == 'K-Means':
             self.kmeans()
         elif method_name == 'Affinity Propagation':

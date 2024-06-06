@@ -51,7 +51,6 @@ class Point_Matrix:
                         self.data.append(Point(float(x), float(y)))
 
                 print("Data loaded successfully: ")
-                self.print_data()
         except FileNotFoundError:
             print("File not found.")
 
