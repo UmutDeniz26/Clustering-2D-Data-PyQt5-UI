@@ -14,9 +14,9 @@ class Clustering_Operations( Point_Matrix ):
         """
         Point_Matrix.__init__(self, data)
         
-    def method_handler_clustering(self,method_name):
+    def method_handler_clustering(self,method_name, args_dict):
         if method_name == 'K-Means':
-            self.kmeans()
+            self.kmeans(n_clusters = args_dict['n_clusters'], max_iter = args_dict['max_iter'], init = args_dict['init'], algorithm = args_dict['algorithm'])
         elif method_name == 'Affinity Propagation':
             self.affinity_propagation()
         elif method_name == 'Mean Shift':
@@ -30,21 +30,23 @@ class Clustering_Operations( Point_Matrix ):
         else:
             print("Method not found.")
 
-    def kmeans(self):
+    def kmeans(self, n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto'):
         # Get data
         
         data = np.array(self.get_data_as_list())
         
-        # Get number of clusters
-        n_clusters = 3
-        
         # KMeans
-        kmeans = cluster.KMeans(n_clusters=n_clusters)
+        if algorithm == 'auto':
+            kmeans = cluster.KMeans(n_clusters = n_clusters, max_iter = max_iter, init = init)
+        else:
+            kmeans = cluster.KMeans(n_clusters = n_clusters, max_iter = max_iter, init = init, algorithm = algorithm)
         kmeans.fit(data)
         
         # Set cluster vector
         self.set_cluster_vector(kmeans.labels_)
         self.set_cluster_id_vector(kmeans.cluster_centers_)
+        self.set_result(kmeans)
+
 
     def affinity_propagation(self):
         # Get data
@@ -57,6 +59,7 @@ class Clustering_Operations( Point_Matrix ):
         # Set cluster vector
         self.set_cluster_vector(affinity_propagation.labels_)
         self.set_cluster_id_vector(affinity_propagation.cluster_centers_indices_)
+        self.set_result(affinity_propagation)
         
     def mean_shift(self):
         # Get data
@@ -69,6 +72,7 @@ class Clustering_Operations( Point_Matrix ):
         # Set cluster vector
         self.set_cluster_vector(mean_shift.labels_)
         self.set_cluster_id_vector(mean_shift.cluster_centers_)
+        self.set_result(mean_shift)
 
     def spectral_clustering(self):
         # Get data
@@ -80,6 +84,7 @@ class Clustering_Operations( Point_Matrix ):
         
         # Set cluster vector
         self.set_cluster_vector(spectral_clustering.labels_)
+        self.set_result(spectral_clustering)
         
     def hierarchical_clustering(self):
         # Get data
@@ -92,6 +97,8 @@ class Clustering_Operations( Point_Matrix ):
         # Set cluster vector
         self.set_cluster_vector(hierarchical_clustering.labels_)
         self.set_cluster_id_vector(hierarchical_clustering.children_)
+        self.set_result(hierarchical_clustering)
+
 
     def dbscan(self):
         # Get data

@@ -61,13 +61,8 @@ class Heuristic_Operations(Point_Matrix):
 
             if no_improvement_counter >= no_improvement_limit:
                 break
-
-        # Save the best found solution
-        self.save_data(solution=current_solution.tolist())
-
-        print("Hill Climbing completed.")
-        print("Best solution found:", current_solution)
-        print("Objective function value:", current_value)
+            
+        return { "solution": current_solution, "value": current_value }
 
     def simulated_annealing(self):
         # Get data
@@ -107,12 +102,8 @@ class Heuristic_Operations(Point_Matrix):
             if no_improvement_counter >= no_improvement_limit:
                 break
 
-        # Save the best found solution
-        self.save_data(solution=current_solution.tolist())
 
-        print("Simulated Annealing completed.")
-        print("Best solution found:", current_solution)
-        print("Objective function value:", current_value)
+        return { "solution": current_solution, "value": current_value }
 
 if __name__ == '__main__':
     pcd = Point_Matrix("src/points.txt")

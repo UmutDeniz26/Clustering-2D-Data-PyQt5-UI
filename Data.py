@@ -29,6 +29,31 @@ class Point_Matrix:
         self.set_data(data)
         self.set_cluster_vector([])
         self.set_cluster_id_vector([])
+        
+        self.data_history = []
+        self.history_index = 0
+    
+    def append_data_history(self, data):
+
+        self.data_history.append(data)
+        self.history_index += 1
+
+    def undo(self):
+        if self.history_index > 0:
+            self.history_index -= 1
+            self.set_data(self.data_history[self.history_index])
+            return True
+        else:
+            return False
+        
+    def redo(self):
+        if self.history_index < len(self.data_history) - 1:
+            self.history_index += 1
+            self.set_data(self.data_history[self.history_index])
+            return True
+        else:
+            return False
+
 
     def load_data(self, filename=None):
 
@@ -66,6 +91,12 @@ class Point_Matrix:
 
     def get_cluster_id_vector(self):
         return self.cluster_id_vector
+    
+    def set_result(self, result):
+        self.result = result
+
+    def get_result(self):
+        return self.result
     
 
     def set_data(self, data):

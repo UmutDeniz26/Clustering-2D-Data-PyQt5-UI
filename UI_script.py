@@ -10,8 +10,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from PyQt5.QtWidgets import QMainWindow
+
+
 from Clustering_Operations import Clustering_Operations
 from Heuristic_Operatipns import Heuristic_Operations
+
+from Get_Data_Dialog import Get_Data_Dialog
 # Clustering_Operations requires Point_Matrix class from Data.py from init
 class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def __init__(self, template_path):
@@ -20,20 +24,23 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
         uic.loadUi(template_path, self)
         self.show()
         
+
+        self.initial_solution_png_hist = []; self.initial_solution_hist_index = 0
+        self.final_solution_png_hist = []; self.final_solution_hist_index = 0
+
         self.full_menu_widget.setVisible(False)
         self.open_data.clicked.connect(self.load_data_button)
+        self.manual_run.clicked.connect(self.manual_run_clicked)
 
         self.side_menu_buttons = [ self.initial_solution_side, self.final_solution_side, self.clustering_side, self.heuristics_side ]
         for button in self.side_menu_buttons:
             button.clicked.connect(self.sidebar_button_clicked)
 
-        self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.menu_exit, self.menu_file]
+        self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.menu_exit, self.menu_file, self.manual_run]
 
         self.disable_all_buttons()
 
         print("UI_Script class initialized.")
-        print("All buttons: ", self.get_buttons())
-
 
 
     ###################### UI Operations ######################
@@ -62,8 +69,17 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def enable_buttons(self):
         for button in self.get_buttons():
             button.setDisabled(False)
-            
-    
+
+
+    def manual_run_clicked(self):
+        # QTextEdit 
+        hubs = self.manual_hubs.toPlainText()
+        nodes = self.manual_nodes.toPlainText()
+
+
+        print(hubs, nodes)
+
+         
     
     #############################################################
 
@@ -147,17 +163,9 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         
         
-        
-
-
-
-
-
-
-
     ##############################################################
 
-    ###################### Data Operations ######################
+    ###################### Monitor Operations ######################
 
 
     # Display functions
@@ -177,6 +185,15 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
         pixmap = self.plot_to_pixmap(fig, label_size)
         self.monitor_initial_solution.setPixmap(pixmap)
         plt.close(fig)
+
+        if self.initial_solution_hist_index == 0:
+            self.initial_solution_png_hist.insert(0, pixmap)
+        else:
+            self.initial_solution_png_hist = self.initial_solution_png_hist[self.initial_solution_hist_index:]
+            self.initial_solution_png_hist.insert(0, pixmap)
+            self.initial_solution_hist_index = 0
+
+
 
     def plot_final_solution(self, label_size=(400, 400)):
         if len(self.get_cluster_vector()) == 0:
@@ -208,14 +225,60 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.monitor_final_solution.setPixmap(pixmap)
             plt.close(fig)
 
-        
+
+            if self.final_solution_hist_index == 0:
+                self.final_solution_png_hist.insert(0, pixmap)
+            else:
+                self.final_solution_png_hist = self.final_solution_png_hist[self.final_solution_hist_index:]
+                self.final_solution_png_hist.insert(0, pixmap)
+                self.final_solution_hist_index = 0
+
+    def update_data_information_panel(self):
+        self.clear_data_information_panel()
+
+        cluster_id_vector_label = self.get_cluster_id_vector()
+        self.add_data_infromation_panel("Clustering labels: " + str(self.get_cluster_vector()))
+        self.add_data_infromation_panel("Cluster centers: " + str(cluster_id_vector_label))
+
+    def add_data_infromation_panel(self, data):
+        old_text = self.monitor_information_panel.toPlainText()
+        self.monitor_information_panel.setText(
+            old_text + "\n" + data
+        )
+
+    def clear_data_information_panel(self):
+        self.monitor_information_panel.clear()
+
+    def add_data_results_panel(self, data):
+        old_text = self.monitor_results.toPlainText()
+        self.monitor_results.setText(
+            old_text + "\n" + data
+        )
+    
+    def clear_data_results_panel(self):
+        self.monitor_results.clear()
+
     # Clustering functions
 
     def clustering_button_clicked(self):
         sender = self.sender()
-        print(sender.text())
-        self.method_handler_clustering(sender.text())
+
+        if sender.text() == 'K-Means':
+            dialog = Get_Data_Dialog(["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]])
+            if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                data = dialog.get_input()
+        
+                args_dict = { 
+                    "n_clusters": int(data[0]) if data[0]!='' else 3, # Default value is 3
+                    "init": data[1],
+                    "max_iter": int(data[2]) if data[2]!='' else 300, # Default value is 300
+                    "algorithm": data[3] 
+                }
+                print("Invalid input. Using default values.")
+
+        self.method_handler_clustering(sender.text(), args_dict)
         self.plot_final_solution()
+        self.update_data_information_panel()
 
     # Heuristics functions
 
@@ -226,11 +289,54 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def initial_solution_button_clicked(self):
         sender = self.sender()
         print(sender.text())        
+        if sender.text() == 'Save As': # Save as jpg
+            self.monitor_initial_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "initial_solution.png", "Images (*.png)")[0])
+        elif sender.text() == 'Save':
+            self.monitor_initial_solution.pixmap().save("initial_solution.png")
+        elif sender.text() == 'Export As': # ??? 
+            self.monitor_initial_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "initial_solution.png", "Images (*.png)")[0])
+        elif sender.text() == 'Undo':
+            
+            if self.initial_solution_hist_index < len(self.initial_solution_png_hist) - 1:
+                print( "Successfull " if self.undo() else "Unsuccessfull", " undo operation.")
+
+                self.initial_solution_hist_index += 1
+                self.monitor_initial_solution.setPixmap(self.initial_solution_png_hist[self.initial_solution_hist_index])
+
+        elif sender.text() == 'Redo':
+            
+            if self.initial_solution_hist_index > 0:
+                print( "Successfull " if self.redo() else "Unsuccessfull", " redo operation.")
+            
+                self.initial_solution_hist_index -= 1
+                self.monitor_initial_solution.setPixmap(self.initial_solution_png_hist[self.initial_solution_hist_index])
+            
 
     def final_solution_button_clicked(self):
         sender = self.sender()
         print(sender.text())
 
+        if sender.text() == 'Save As': # Save as jpg
+            self.monitor_final_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "final_solution.png", "Images (*.png)")[0])
+        elif sender.text() == 'Save':
+            self.monitor_final_solution.pixmap().save("final_solution.png")
+        elif sender.text() == 'Export As': # ???
+            self.monitor_final_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "final_solution.png", "Images (*.png)")[0])
+        
+        elif sender.text() == 'Undo':
+            if self.final_solution_hist_index < len(self.final_solution_png_hist) - 1:
+                self.final_solution_hist_index += 1
+                self.monitor_final_solution.setPixmap(self.final_solution_png_hist[self.final_solution_hist_index])
+
+        elif sender.text() == 'Redo':
+            if self.final_solution_hist_index > 0:
+                self.final_solution_hist_index -= 1
+                self.monitor_final_solution.setPixmap(self.final_solution_png_hist[self.final_solution_hist_index])
+    def set_initial_solution_pixmap(self, pixmap):
+        self.monitor_initial_solution.setPixmap(pixmap)
+
+    def set_final_solution_pixmap(self, pixmap):
+        self.monitor_final_solution.setPixmap(pixmap)
 
     ##############################################################
 
