@@ -2,8 +2,7 @@
 # Class to represent a point in 3D space
 class Point:
     def __init__(self, x, y,cluster_id=None):
-        self.__x = float(x)
-        self.__y = float(y)
+        self.set_coordinates(x, y)
         self.set_cluster_id(cluster_id)
 
     def __str__(self):
@@ -67,8 +66,12 @@ class Point_Matrix:
                 data = data.split("\n")
                 for line in data:
                     if line:
-                        x, y = line.split(" ")
-                        self.data.append(Point(float(x), float(y)))
+                        line_elements = line.split(" ")
+                        x,y = line_elements[0], line_elements[1]
+                        
+                        cluster_id = line_elements[2] if len(line_elements) > 2 else None 
+                        
+                        self.data.append(Point(float(x), float(y), cluster_id))
 
                 print("Data loaded successfully: ")
         except FileNotFoundError:

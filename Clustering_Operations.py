@@ -44,7 +44,7 @@ class Clustering_Operations( Point_Matrix ):
         
         # Set cluster vector
         self.set_cluster_vector(kmeans.labels_)
-        self.set_cluster_id_vector(kmeans.cluster_centers_)
+        self.set_cluster_centers(kmeans.cluster_centers_)
         self.set_result(kmeans)
 
 
@@ -58,7 +58,7 @@ class Clustering_Operations( Point_Matrix ):
         
         # Set cluster vector
         self.set_cluster_vector(affinity_propagation.labels_)
-        self.set_cluster_id_vector(affinity_propagation.cluster_centers_indices_)
+        self.set_cluster_centers(affinity_propagation.cluster_centers_indices_)
         self.set_result(affinity_propagation)
         
     def mean_shift(self):
@@ -71,7 +71,7 @@ class Clustering_Operations( Point_Matrix ):
         
         # Set cluster vector
         self.set_cluster_vector(mean_shift.labels_)
-        self.set_cluster_id_vector(mean_shift.cluster_centers_)
+        self.set_cluster_centers(mean_shift.cluster_centers_)
         self.set_result(mean_shift)
 
     def spectral_clustering(self):
@@ -96,7 +96,7 @@ class Clustering_Operations( Point_Matrix ):
         
         # Set cluster vector
         self.set_cluster_vector(hierarchical_clustering.labels_)
-        self.set_cluster_id_vector(hierarchical_clustering.children_)
+        self.set_cluster_centers(hierarchical_clustering.children_)
         self.set_result(hierarchical_clustering)
 
 
@@ -110,7 +110,7 @@ class Clustering_Operations( Point_Matrix ):
         
         # Set cluster vector
         self.set_cluster_vector(dbscan.labels_)
-        self.set_cluster_id_vector(dbscan.components_)
+        self.set_cluster_centers(dbscan.components_)
 
 if __name__ == '__main__':
     pass

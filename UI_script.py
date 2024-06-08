@@ -161,15 +161,13 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
     # Display functions
     def plot_initial_solution(self, label_size=(400, 400)):
         # get plot
-        initial_solution_data = self.get_data_as_list()
+        initial_solution_data = self.get_data()
         
         # 2D plot
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.set_xlabel('X Label')
-        ax.set_ylabel('Y Label')
+        fig, ax = self.init_figure()
+
         for point in initial_solution_data:
-            ax.scatter(point[0], point[1], c='black')
+            ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c='black')
         
         # Convert plot to pixmap
         pixmap = self.plot_to_pixmap(fig, label_size)
@@ -183,39 +181,38 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.initial_solution_png_hist.insert(0, pixmap)
             self.initial_solution_hist_index = 0
 
+    def init_figure(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        return fig, ax
 
 
     def plot_final_solution(self, label_size=(400, 400)):
         if len(self.get_cluster_vector()) == 0:
             raise ValueError("Cluster vector is empty.")
         else:
-            cluster_vector = self.get_cluster_vector()
-            cluster_id_vector = self.get_cluster_id_vector()
-            data = self.get_data_as_list()
+            cluster_centers = self.get_cluster_centers()
 
-            # 2D plot
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-            ax.set_xlabel('X Label')
-            ax.set_ylabel('Y Label')
+            # 2D plot 
+            fig, ax = self.init_figure()
 
             color_list = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta', 'brown']
 
-            for i in range(len(data)):
-                ax.scatter(data[i][0], data[i][1], c=color_list[cluster_vector[i]])
+            for point in self.get_data():
+                ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c=color_list[point.get_cluster_id()])
             
-            try:
-                for cluster_id in cluster_id_vector:
-                    ax.scatter(cluster_id[0], cluster_id[1], c='red', s=100, marker='x')
-            except:
-                print("Cluster id vector is empty.")
+            for cluster_pos in cluster_centers:
+                ax.scatter(cluster_pos[0], cluster_pos[1], c='red', s=100, marker='x')
+            
 
             # Convert plot to pixmap
             pixmap = self.plot_to_pixmap(fig, label_size)
             self.monitor_final_solution.setPixmap(pixmap)
             plt.close(fig)
 
-
+            # Append to final solution image history
             if self.final_solution_hist_index == 0:
                 self.final_solution_png_hist.insert(0, pixmap)
             else:
@@ -226,9 +223,9 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def update_data_information_panel(self):
         self.clear_data_information_panel()
 
-        cluster_id_vector_label = self.get_cluster_id_vector()
+        cluster_centers_label = self.get_cluster_centers()
         self.add_data_infromation_panel("Clustering labels: " + str(self.get_cluster_vector()))
-        self.add_data_infromation_panel("Cluster centers: " + str(cluster_id_vector_label))
+        self.add_data_infromation_panel("Cluster centers: " + str(cluster_centers_label))
 
     def add_data_infromation_panel(self, data):
         old_text = self.monitor_information_panel.toPlainText()
@@ -282,15 +279,15 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
         # Save and Export operations
         if sender.text() == 'Save As': # Save as txt
             
-            txt_data = self.get_data_as_list()
+            point_matrix = self.get_data()
             with open(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "initial_solution.txt", "Text files (*.txt)")[0], 'w') as f:
-                for point in txt_data:
-                    f.write(str(point[0]) + " " + str(point[1]) + "\n")
+                for point in point_matrix:
+                    f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + "\n")
         elif sender.text() == 'Save':
-            txt_data = self.get_data_as_list()
+            point_matrix = self.get_data()
             with open("initial_solution.txt", 'w') as f:
-                for point in txt_data:
-                    f.write(str(point[0]) + " " + str(point[1]) + "\n")
+                for point in point_matrix:
+                    f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + "\n")
         elif sender.text() == 'Export As': # export as jpg
             self.monitor_initial_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "initial_solution.png", "Images (*.png)")[0])
         
@@ -315,16 +312,16 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
         sender = self.sender()
 
         if sender.text() == 'Save As': # Save as txt
-            txt_data = self.get_data_as_list()
+            point_matrix = self.get_data()
             with open(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "final_solution.txt", "Text files (*.txt)")[0], 'w') as f:
-                for point in txt_data:
-                    f.write(str(point[0]) + " " + str(point[1]) + "\n")
-        
+                for point in point_matrix:
+                    f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + " cluster: " + str(point.get_cluster_id()) + "\n")
+                
         elif sender.text() == 'Save':
-            txt_data = self.get_data_as_list()
+            point_matrix = self.get_data()
             with open("final_solution.txt", 'w') as f:
-                for point in txt_data:
-                    f.write(str(point[0]) + " " + str(point[1]) + "\n")
+                for point in point_matrix:
+                    f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + " cluster: " + str(point.get_cluster_id()) + "\n")
         
         elif sender.text() == 'Export As': # export as jpg
             self.monitor_final_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "final_solution.png", "Images (*.png)")[0])
@@ -338,11 +335,7 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
             if self.final_solution_hist_index > 0:
                 self.final_solution_hist_index -= 1
                 self.monitor_final_solution.setPixmap(self.final_solution_png_hist[self.final_solution_hist_index])
-    def set_initial_solution_pixmap(self, pixmap):
-        self.monitor_initial_solution.setPixmap(pixmap)
-
-    def set_final_solution_pixmap(self, pixmap):
-        self.monitor_final_solution.setPixmap(pixmap)
+                
 
     ##############################################################
 

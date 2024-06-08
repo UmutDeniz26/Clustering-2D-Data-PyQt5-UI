@@ -12,7 +12,7 @@ class Get_Data_Dialog(QtWidgets.QDialog):
         
         self.questions = questions
         self.labels = []
-        self.textboxes = []
+        self.inputs = []
         self.init_ui()
         
 
@@ -30,7 +30,7 @@ class Get_Data_Dialog(QtWidgets.QDialog):
                 combobox = QtWidgets.QComboBox()
                 for item in question[1:]:
                     combobox.addItem(item)
-                self.textboxes.append(combobox)
+                self.inputs.append(combobox)
                 self.layout.addWidget(combobox)    
             else:
                 label = QtWidgets.QLabel(question)
@@ -38,7 +38,7 @@ class Get_Data_Dialog(QtWidgets.QDialog):
                 self.layout.addWidget(label)
 
                 textbox = QtWidgets.QLineEdit()
-                self.textboxes.append(textbox)
+                self.inputs.append(textbox)
                 self.layout.addWidget(textbox)
 
         self.buttonbox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -52,7 +52,7 @@ class Get_Data_Dialog(QtWidgets.QDialog):
 
     def get_input(self):
         inputs = []
-        for textbox in self.textboxes:
+        for textbox in self.inputs:
             if isinstance(textbox, QtWidgets.QLineEdit):
                 inputs.append(textbox.text())
             elif isinstance(textbox, QtWidgets.QComboBox):
