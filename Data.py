@@ -28,7 +28,7 @@ class Point_Matrix:
         self.set_filename(filename)
         self.set_data(data)
         self.set_cluster_vector([])
-        self.set_cluster_id_vector([])
+        self.set_cluster_centers([])
         
         self.data_history = []
         self.history_index = 0
@@ -42,17 +42,12 @@ class Point_Matrix:
         if self.history_index > 0:
             self.history_index -= 1
             self.set_data(self.data_history[self.history_index])
-            return True
-        else:
-            return False
+
         
     def redo(self):
         if self.history_index < len(self.data_history) - 1:
             self.history_index += 1
             self.set_data(self.data_history[self.history_index])
-            return True
-        else:
-            return False
 
 
     def load_data(self, filename=None):
@@ -79,18 +74,25 @@ class Point_Matrix:
         except FileNotFoundError:
             print("File not found.")
 
+
+    def set_filename(self, filename):
+        self.filename = filename
+
+    def get_filename(self):
+        return self.filename
     
     def set_cluster_vector(self, cluster_vector):
-        self.cluster_vector = cluster_vector
+        for i, cluster_id in enumerate(cluster_vector):
+            self.data[i].set_cluster_id(cluster_id)
 
     def get_cluster_vector(self):
-        return self.cluster_vector
+        return [point.get_cluster_id() for point in self.get_data()]
     
-    def set_cluster_id_vector(self, cluster_id_vector):
-        self.cluster_id_vector = cluster_id_vector
+    def set_cluster_centers(self, cluster_centers):
+        self.cluster_centers = cluster_centers
 
-    def get_cluster_id_vector(self):
-        return self.cluster_id_vector
+    def get_cluster_centers(self):
+        return self.cluster_centers
     
     def set_result(self, result):
         self.result = result
@@ -129,12 +131,6 @@ class Point_Matrix:
     def print_data(self):
         for point in self.get_data():
             print(point)
-
-    def set_filename(self, filename):
-        self.filename = filename
-
-    def get_filename(self):
-        return self.filename
 
     def save_data(self, solution=None, filename=None):
         

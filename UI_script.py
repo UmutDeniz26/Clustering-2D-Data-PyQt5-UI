@@ -31,6 +31,7 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.full_menu_widget.setVisible(False)
         self.open_data.clicked.connect(self.load_data_button)
         self.manual_run.clicked.connect(self.manual_run_clicked)
+        self.add_all_buttons()
 
         self.side_menu_buttons = [ self.initial_solution_side, self.final_solution_side, self.clustering_side, self.heuristics_side ]
         for button in self.side_menu_buttons:
@@ -38,7 +39,7 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.menu_exit, self.menu_file, self.manual_run]
 
-        self.disable_all_buttons()
+        self.change_buttons_state()
 
         print("UI_Script class initialized.")
 
@@ -47,35 +48,33 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     def get_buttons(self):
         buttons = []
+
         for button in self.findChildren(QtWidgets.QPushButton):
             buttons.append(button)
-
         for button in self.findChildren(QtWidgets.QMenu):
             buttons.append(button)
-
         buttons.append(self.menu_save_initial_solution)
         buttons.append(self.menu_save_final_solution)
 
         return buttons
     
-    def disable_all_buttons(self):
-        # Get all buttons except the always display buttons
+    def change_buttons_state(self):
         for button in self.get_buttons():
             if button in self.always_display_buttons:
                 continue
-            button.setDisabled(True)
+            button.setDisabled(True) if button.isEnabled() else button.setDisabled(False)
+            print( "Button is ", "enabled." if button.isEnabled() else "disabled.")
 
 
-    def enable_buttons(self):
-        for button in self.get_buttons():
-            button.setDisabled(False)
+
+
+    ###################### Manual Operations ######################
 
 
     def manual_run_clicked(self):
         # QTextEdit 
         hubs = self.manual_hubs.toPlainText()
         nodes = self.manual_nodes.toPlainText()
-
 
         print(hubs, nodes)
 
@@ -90,7 +89,7 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
         if data_path:
             self.load_data(data_path)
             self.plot_initial_solution()
-            self.enable_buttons()
+            self.change_buttons_state()
     
     
 
@@ -108,60 +107,51 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
         
         self.hold_sender = sender
 
+    def add_all_buttons(self):
+        button_names = [ 
+            [ 'Save As', 'Save', 'Export As', 'Undo', 'Redo' ], 
+            [ 'Save As', 'Save', 'Export As', 'Undo', 'Redo' ], 
+            [ 'K-Means', 'Affinity Propagation', 'Mean Shift', 'Spectral Clustering', 'Hierarchical Clustering', 'DBSCAN' ], 
+            [ 'Hill Climbing', 'Simulated Annealing' ] ]
+
+        button_object_names = [
+            [ 'side_initial_save_as', 'side_initial_save', 'side_initial_export_as', 'side_initial_undo', 'side_initial_redo' ],
+            [ 'side_final_save_as', 'side_final_save', 'side_final_export_as', 'side_final_undo', 'side_final_redo' ],
+            [ 'side_clustering_kmeans', 'side_clustering_affinity_propagation', 'side_clustering_mean_shift', 'side_clustering_spectral_clustering', 'side_clustering_hierarchical_clustering', 'side_clustering_dbscan' ],
+            [ 'side_heuristics_hill_climbing', 'side_heuristics_simulated_annealing' ] ]
+        
+        button_functions = [ 
+            self.initial_solution_button_clicked, 
+            self.final_solution_button_clicked, 
+            self.clustering_button_clicked, 
+            self.heuristics_button_clicked ]
+
+        zipped = zip(button_names, button_object_names, button_functions)
+
+        for button_names, button_object_names, button_function in zipped:
+            for i in range(len(button_names)):
+                button = QtWidgets.QPushButton(button_names[i])
+                button.setObjectName(button_object_names[i])
+                button.clicked.connect(button_function)
+                self.toolbox_layout.addWidget(button)
+
     def edit_full_menu_buttons(self, sender, container):
-        # Clear buttons of the container
+        # Hide all buttons
         for i in reversed(range(container.count())):
-            container.itemAt(i).widget().deleteLater()
-        
+            container.itemAt(i).widget().setVisible(False)
+
         if sender == self.initial_solution_side:
-            # Buttons to add
-            button_names = ['Save As', 'Save', 'Export As', 'Undo', 'Redo']
-            button_object_names = ['side_initial_save_as', 'side_initial_save', 'side_initial_export_as', 'side_initial_undo', 'side_initial_redo']
-
-            # Add buttons to the container
-            for i,button_name in enumerate(button_names):
-                button = QtWidgets.QPushButton(button_name)
-                button.setObjectName(button_object_names[i])
-
-                button.clicked.connect(self.initial_solution_button_clicked)
-                container.addWidget(button)
-
+            button_object_names = [ 'side_initial_save_as', 'side_initial_save', 'side_initial_export_as', 'side_initial_undo', 'side_initial_redo' ]
         elif sender == self.final_solution_side:
-            # Buttons to add
-            button_names = ['Save As', 'Save', 'Export As', 'Undo', 'Redo']
-            button_object_names = ['side_final_save_as', 'side_final_save', 'side_final_export_as', 'side_final_undo', 'side_final_redo']
-
-            # Add buttons to the container
-            for i,button_name in enumerate(button_names):
-                button = QtWidgets.QPushButton(button_name)
-                button.setObjectName(button_object_names[i])
-
-                button.clicked.connect(self.final_solution_button_clicked)
-                container.addWidget(button)
-
+            button_object_names = [ 'side_final_save_as', 'side_final_save', 'side_final_export_as', 'side_final_undo', 'side_final_redo' ]
         elif sender == self.clustering_side:
-            # Buttons to add
-            button_names = ['K-Means', 'Affinity Propagation', 'Mean Shift', 'Spectral Clustering', 'Hierarchical Clustering', 'DBSCAN']
-
-            # Add buttons to the container
-            for button_name in button_names:
-                button = QtWidgets.QPushButton(button_name)
-                button.clicked.connect(self.clustering_button_clicked)
-                container.addWidget(button)
-
+            button_object_names = [ 'side_clustering_kmeans', 'side_clustering_affinity_propagation', 'side_clustering_mean_shift', 'side_clustering_spectral_clustering', 'side_clustering_hierarchical_clustering', 'side_clustering_dbscan' ]
         elif sender == self.heuristics_side:
-            # Buttons to add
-            button_names = ['Hill Climbing', 'Simulated Annealing']
+            button_object_names = [ 'side_heuristics_hill_climbing', 'side_heuristics_simulated_annealing' ]
 
-            # Add buttons to the container
-            for button_name in button_names:
-                button = QtWidgets.QPushButton(button_name)
-                button.clicked.connect(self.heuristics_button_clicked)
-                container.addWidget(button)
-
-            
-
-        
+        for button_object_name in button_object_names:
+            button = self.findChild(QtWidgets.QPushButton, button_object_name)
+            button.setVisible(True)
         
     ##############################################################
 
@@ -288,13 +278,23 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     def initial_solution_button_clicked(self):
         sender = self.sender()
-        print(sender.text())        
-        if sender.text() == 'Save As': # Save as jpg
-            self.monitor_initial_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "initial_solution.png", "Images (*.png)")[0])
+        
+        # Save and Export operations
+        if sender.text() == 'Save As': # Save as txt
+            
+            txt_data = self.get_data_as_list()
+            with open(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "initial_solution.txt", "Text files (*.txt)")[0], 'w') as f:
+                for point in txt_data:
+                    f.write(str(point[0]) + " " + str(point[1]) + "\n")
         elif sender.text() == 'Save':
-            self.monitor_initial_solution.pixmap().save("initial_solution.png")
-        elif sender.text() == 'Export As': # ??? 
+            txt_data = self.get_data_as_list()
+            with open("initial_solution.txt", 'w') as f:
+                for point in txt_data:
+                    f.write(str(point[0]) + " " + str(point[1]) + "\n")
+        elif sender.text() == 'Export As': # export as jpg
             self.monitor_initial_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "initial_solution.png", "Images (*.png)")[0])
+        
+        # Undo and Redo operations
         elif sender.text() == 'Undo':
             
             if self.initial_solution_hist_index < len(self.initial_solution_png_hist) - 1:
@@ -302,7 +302,6 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
                 self.initial_solution_hist_index += 1
                 self.monitor_initial_solution.setPixmap(self.initial_solution_png_hist[self.initial_solution_hist_index])
-
         elif sender.text() == 'Redo':
             
             if self.initial_solution_hist_index > 0:
@@ -314,15 +313,22 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     def final_solution_button_clicked(self):
         sender = self.sender()
-        print(sender.text())
 
-        if sender.text() == 'Save As': # Save as jpg
-            self.monitor_final_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "final_solution.png", "Images (*.png)")[0])
-        elif sender.text() == 'Save':
-            self.monitor_final_solution.pixmap().save("final_solution.png")
-        elif sender.text() == 'Export As': # ???
-            self.monitor_final_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "final_solution.png", "Images (*.png)")[0])
+        if sender.text() == 'Save As': # Save as txt
+            txt_data = self.get_data_as_list()
+            with open(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "final_solution.txt", "Text files (*.txt)")[0], 'w') as f:
+                for point in txt_data:
+                    f.write(str(point[0]) + " " + str(point[1]) + "\n")
         
+        elif sender.text() == 'Save':
+            txt_data = self.get_data_as_list()
+            with open("final_solution.txt", 'w') as f:
+                for point in txt_data:
+                    f.write(str(point[0]) + " " + str(point[1]) + "\n")
+        
+        elif sender.text() == 'Export As': # export as jpg
+            self.monitor_final_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "final_solution.png", "Images (*.png)")[0])
+
         elif sender.text() == 'Undo':
             if self.final_solution_hist_index < len(self.final_solution_png_hist) - 1:
                 self.final_solution_hist_index += 1
@@ -345,10 +351,6 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def exit_app(self):
         sys.exit()
        
-    def change_button_state(self, button, state):
-        for button in self.all_buttons:
-            if button not in self.always_display_buttons:
-                button.setDisabled(False) if state else button.setDisabled(True)
 
     def plot_to_pixmap(self, fig, label_size):
         fig.canvas.draw()
