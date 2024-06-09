@@ -213,19 +213,16 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         cluster_centers = self.get_cluster_centers()
         center_nodes = self.get_center_nodes()
 
-        # 2D plot 
+        # Generate 2D Plot 
         fig, ax = self.init_figure()
-
         color_list = [ 'red', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta' ]
         
-
         for point in self.get_data():
             if point.get_coordinates() in center_nodes:
                 ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c='blue')
             else:
                 ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c=color_list[point.get_cluster_id()])
         
-
         for cluster_pos in cluster_centers:
             ax.scatter(cluster_pos[0], cluster_pos[1], c='red', s=100, marker='x')
         
@@ -248,7 +245,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         cluster_centers_label = self.get_cluster_centers()
         self.add_data_infromation_panel("Clustering labels: " + str(self.get_cluster_vector()))
-        self.add_data_infromation_panel("Cluster centers: " + str(cluster_centers_label))
+        self.add_data_infromation_panel("Cluster centers: " + str(cluster_centers_label).replace("\n", " "))
 
     def add_data_infromation_panel(self, data):
         old_text = self.monitor_information_panel.toPlainText()
