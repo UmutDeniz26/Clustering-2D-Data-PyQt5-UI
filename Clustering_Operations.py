@@ -12,7 +12,7 @@ class Clustering_Operations( Point_Matrix ):
         Constructor for image_operator class
         :param image: np.ndarray or str
         """
-        Point_Matrix.__init__(self, data)
+        Point_Matrix.__init__(self, data = data)
         
     def method_handler_clustering(self,method_name, args_dict):
         if method_name == 'K-Means':
@@ -30,6 +30,38 @@ class Clustering_Operations( Point_Matrix ):
         else:
             print("Method not found.")
 
+    def get_cluster_points(self):
+        # Get cluster points
+        count_clusters = max(self.get_cluster_vector()) + 1 
+
+        self.cluster_points = [[] for i in range(count_clusters)]
+
+        for i in range(count_clusters):
+            for point in self.get_data():
+                if point.get_cluster_id() == i:
+                    self.cluster_points[i].append(point.get_coordinates())
+                    
+        return self.cluster_points
+
+    def get_center_nodes(self):
+        
+        # Minimum distance between a point and a cluster, will be the center of the cluster
+        count_clusters = max(self.get_cluster_vector()) + 1
+        self.center_nodes = []
+        for i in range(count_clusters):
+            min_distance = float('inf')
+            center_node = None
+            for point in self.get_data():
+                if point.get_cluster_id() == i:
+                    distance = np.linalg.norm(point.get_coordinates() - self.get_cluster_centers()[i])
+                    if distance < min_distance:
+                        min_distance = distance
+                        center_node = point.get_coordinates()
+            self.center_nodes.append(center_node)
+        
+        return self.center_nodes
+
+
     def kmeans(self, n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto'):
         # Get data
         
@@ -46,6 +78,8 @@ class Clustering_Operations( Point_Matrix ):
         self.set_cluster_vector(kmeans.labels_)
         self.set_cluster_centers(kmeans.cluster_centers_)
         self.set_result(kmeans)
+
+        self.get_center_nodes()
 
 
     def affinity_propagation(self):
@@ -113,4 +147,11 @@ class Clustering_Operations( Point_Matrix ):
         self.set_cluster_centers(dbscan.components_)
 
 if __name__ == '__main__':
-    pass
+    example_path = "src/points.txt"
+    pcd = Point_Matrix(example_path)
+    pcd.load_data()
+
+    clustering = Clustering_Operations(pcd)
+    clustering.kmeans(n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto')
+    print(clustering.get_cluster_vector())
+    print(clustering.get_cluster_centers())

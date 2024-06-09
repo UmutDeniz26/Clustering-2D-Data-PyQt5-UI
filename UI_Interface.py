@@ -1,4 +1,4 @@
-# Read PyqtUI.ui file and show the window
+# Read UI_Interface.ui file and show the window
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QPixmap, QImage
@@ -17,9 +17,9 @@ from Heuristic_Operatipns import Heuristic_Operations
 
 from Get_Data_Dialog import Get_Data_Dialog
 # Clustering_Operations requires Point_Matrix class from Data.py from init
-class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
+class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def __init__(self, template_path):
-        super(PyqtUI, self).__init__( data = None )
+        super(UI_Interface, self).__init__( data = None )
 
         uic.loadUi(template_path, self)
         self.show()
@@ -63,7 +63,6 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
             if button in self.always_display_buttons:
                 continue
             button.setDisabled(True) if button.isEnabled() else button.setDisabled(False)
-            print( "Button is ", "enabled." if button.isEnabled() else "disabled.")
 
 
 
@@ -194,15 +193,22 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
             raise ValueError("Cluster vector is empty.")
         else:
             cluster_centers = self.get_cluster_centers()
+            center_nodes = self.get_center_nodes()
 
             # 2D plot 
             fig, ax = self.init_figure()
 
-            color_list = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta', 'brown']
+            color_list = [ 'red', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta' ]
+            
+            print("Test")
 
             for point in self.get_data():
-                ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c=color_list[point.get_cluster_id()])
+                if point.get_coordinates() in center_nodes:
+                    ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c='blue')
+                else:
+                    ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c=color_list[point.get_cluster_id()])
             
+
             for cluster_pos in cluster_centers:
                 ax.scatter(cluster_pos[0], cluster_pos[1], c='red', s=100, marker='x')
             
@@ -262,6 +268,9 @@ class PyqtUI(QMainWindow, Clustering_Operations, Heuristic_Operations):
                     "algorithm": data[3] 
                 }
                 print("Invalid input. Using default values.")
+        if sender.text() == 'Affinity Propagation':
+            dialog = Get_Data_Dialog(["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]])
+
 
         self.method_handler_clustering(sender.text(), args_dict)
         self.plot_final_solution()
@@ -364,5 +373,5 @@ if __name__ == '__main__':
     print("Testing UI_Script class")
 
     app = QtWidgets.QApplication(sys.argv)
-    window = PyqtUI(template_path='Interface.ui')
+    window = UI_Interface(template_path='Interface.ui')
     sys.exit(app.exec_())

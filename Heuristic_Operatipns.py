@@ -15,11 +15,8 @@ class Heuristic_Operations(Point_Matrix):
             print("Method not found.")
 
     def objective_function(self, data):
-        if len(data) == 0:
-            return float('inf')
-        # Example objective function: minimize the sum of distances to the origin (0, 0)
-        origin = np.array([0, 0])
-        return np.sum(np.sqrt(np.sum((data - origin) ** 2, axis=1)))
+        # For example, sum of distances between points
+        return np.sum(np.linalg.norm(data - np.mean(data, axis=0), axis=1))
 
     def generate_neighbor(self, data):
         if len(data) == 0:
@@ -34,19 +31,10 @@ class Heuristic_Operations(Point_Matrix):
         neighbor[idx] += perturbation
         return neighbor
 
-    def hill_climbing(self):
+    def hill_climbing(self, max_iterations=1000):
         # Get data
-        data = np.array(self.get_data_as_list())
-
-        # Initial solution
-        current_solution = data
+        current_solution = np.array(self.get_data_as_list())
         current_value = self.objective_function(current_solution)
-
-        # Parameters
-        max_iterations = 1000
-        no_improvement_limit = 100
-
-        no_improvement_counter = 0
 
         for iteration in range(max_iterations):
             neighbor = self.generate_neighbor(current_solution)
@@ -55,55 +43,120 @@ class Heuristic_Operations(Point_Matrix):
             if neighbor_value < current_value:
                 current_solution = neighbor
                 current_value = neighbor_value
-                no_improvement_counter = 0
-            else:
-                no_improvement_counter += 1
 
-            if no_improvement_counter >= no_improvement_limit:
-                break
             
         return { "solution": current_solution, "value": current_value }
 
-    def simulated_annealing(self):
+    def simulated_annealing(self, max_iterations=1000, initial_temperature=100.0, cooling_rate=0.99):
         # Get data
-        data = np.array(self.get_data_as_list())
+        current_solution = np.array(self.get_data_as_list())
 
-        # Initial solution
-        current_solution = data
         current_value = self.objective_function(current_solution)
 
-        # Parameters
-        max_iterations = 1000
-        no_improvement_limit = 100
-        initial_temperature = 100.0
-        cooling_rate = 0.99
-
-        no_improvement_counter = 0
+        # Initial temperature
         temperature = initial_temperature
 
+        # Keep track of the best solution
+        best_solution = current_solution
+        best_value = current_value
+
         for iteration in range(max_iterations):
-            neighbor = self.generate_neighbor(current_solution)
-            neighbor_value = self.objective_function(neighbor)
+            # Generate a neighbor
+            candidate_solution = self.generate_neighbor(current_solution)
+            candidate_value = self.objective_function(candidate_solution)
 
-            if neighbor_value < current_value:
-                current_solution = neighbor
-                current_value = neighbor_value
-                no_improvement_counter = 0
-            else:
-                delta = neighbor_value - current_value
-                acceptance_probability = np.exp(-delta / temperature)
-                if random.random() < acceptance_probability:
-                    current_solution = neighbor
-                    current_value = neighbor_value
-                    no_improvement_counter = 0
+            # Calculate the difference in objective values
+            diff = candidate_value - current_value
 
+            # Calculate the acceptance probability
+            if diff < 0 or np.random.rand() < np.exp(-diff / temperature):
+                current_solution = candidate_solution
+                current_value = candidate_value
+
+                # Check for a new best solution
+                if candidate_value < best_value:
+                    best_solution = candidate_solution
+                    best_value = candidate_value
+
+            # Cool down the temperature
             temperature *= cooling_rate
 
-            if no_improvement_counter >= no_improvement_limit:
-                break
+        return {"solution": best_solution, "value": best_value}
+    
 
+    def relocate_hub(self):
+        clusters = self.get_clusters()
+        hubs = self.get_hubs()
 
-        return { "solution": current_solution, "value": current_value }
+        # Choose a random cluster that has at least one non-hub node
+        eligible_clusters = [cluster for cluster in clusters if len(cluster) > 1]
+        if not eligible_clusters:
+            return
+
+        cluster = random.choice(eligible_clusters)
+
+        # Randomly choose a non-hub node from the cluster to become the new hub
+        non_hub_nodes = [node for node in cluster if node not in hubs]
+        new_hub = random.choice(non_hub_nodes)
+
+        # Update the hub assignment
+        old_hub = hubs[cluster]
+        hubs[cluster] = new_hub
+
+        # Move the old hub to be a regular node in the cluster
+        cluster.remove(new_hub)
+        cluster.append(old_hub)
+        self.set_hubs(hubs)
+
+    def reallocate_nodes(self):
+        clusters = self.get_clusters()
+        hubs = self.get_hubs()
+
+        # Choose a random cluster
+        cluster = random.choice(clusters)
+
+        # Ensure the cluster is not a single hub-node
+        if len(cluster) <= 1:
+            return
+
+        # Choose a random non-hub node to reallocate
+        non_hub_nodes = [node for node in cluster if node not in hubs]
+        node_to_reallocate = random.choice(non_hub_nodes)
+
+        # Choose a new cluster for the node
+        new_cluster = random.choice([c for c in clusters if c != cluster])
+
+        # Move the node to the new cluster
+        cluster.remove(node_to_reallocate)
+        new_cluster.append(node_to_reallocate)
+
+    def swap_nodes(self):
+        clusters = self.get_clusters()
+        hubs = self.get_hubs()
+
+        # Choose two different clusters
+        if len(clusters) < 2:
+            return
+
+        cluster1, cluster2 = random.sample(clusters, 2)
+
+        # Ensure both clusters have non-hub nodes
+        non_hub_nodes1 = [node for node in cluster1 if node not in hubs]
+        non_hub_nodes2 = [node for node in cluster2 if node not in hubs]
+
+        if not non_hub_nodes1 or not non_hub_nodes2:
+            return
+
+        # Choose a random non-hub node from each cluster
+        node1 = random.choice(non_hub_nodes1)
+        node2 = random.choice(non_hub_nodes2)
+
+        # Swap the nodes
+        cluster1.remove(node1)
+        cluster2.remove(node2)
+
+        cluster1.append(node2)
+        cluster2.append(node1)
 
 if __name__ == '__main__':
     pcd = Point_Matrix("src/points.txt")
