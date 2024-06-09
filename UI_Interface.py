@@ -213,7 +213,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         
         # Get output data
         cluster_centers = self.calculate_cluster_centers()
-        center_nodes = self.get_center_nodes()
+        center_nodes = [ point.get_coordinates() for point in self.get_center_nodes() ]
 
         # Generate 2D Plot 
         fig, ax = self.init_figure()
@@ -222,10 +222,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         for point in self.get_data():
             if point.get_coordinates() in center_nodes:
                 ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c='blue')
-                ax.text(point.get_coordinates()[0], point.get_coordinates()[1], str(point.get_cluster_id()), fontsize=12)
+                ax.text(point.get_coordinates()[0], point.get_coordinates()[1], str(point.get_id()), fontsize=12)
             else:
                 ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c=color_list[point.get_cluster_id()])
-                ax.text(point.get_coordinates()[0], point.get_coordinates()[1], str(point.get_cluster_id()), fontsize=12)
+                ax.text(point.get_coordinates()[0], point.get_coordinates()[1], str(point.get_id()), fontsize=12)
         
         for cluster_pos in cluster_centers:
             ax.scatter(cluster_pos[0], cluster_pos[1], c='blue', s=100, marker='x')
@@ -251,6 +251,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         cluster_centers_label = self.calculate_cluster_centers()
         rounded_cluster_centers = [ (round(center[0], 2), round(center[1], 2)) for center in cluster_centers_label ]
         cluster_items = self.get_cluster_items() # It is a dict like {0:[(x1, y1), (x2, y2)], 1:[(x3, y3), (x4, y4)], 1: ...}
+        pair_objectives, max_pair_objective = self.calculate_pair_objectives()
 
         self.add_data_infromation_panel("Clustering labels: " + str(self.get_cluster_vector()))
         self.add_data_infromation_panel("\nCluster centers: " + str(rounded_cluster_centers).replace("  ", "").replace("\n", " ")+"\n")
@@ -259,6 +260,12 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         for cluster_id, cluster_items in cluster_items.items():
             self.add_data_infromation_panel("\nCluster " + str(cluster_id) + " items: " + 
                 str( [ (round(item.get_coordinates()[0], 2), round(item.get_coordinates()[1], 2)) for item in cluster_items ] ))
+            
+        self.add_data_infromation_panel("\n\nFarthest Hub Distances: \n" + str(self.calculate_distances_from_center()))
+        self.add_data_infromation_panel("\n\nAll Possible Pairs: \n" + str([ (point_tuple[0].get_id(), point_tuple[1].get_id())
+                                                                            for point_tuple in self.calculate_all_possible_pairs() ]))
+        self.add_data_infromation_panel("\n\nPair Objectives: \n" + str(pair_objectives))
+        self.add_data_infromation_panel("\n\nMax Pair Objective: \n" + str(max_pair_objective))
                                                                                               
 
     def add_data_infromation_panel(self, data):

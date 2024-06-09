@@ -87,7 +87,7 @@ class Clustering_Operations( Point_Matrix ):
                     
         return cluster_items
     
-    def calculate_objective_function(self):
+    def calculate_distances_from_center(self):
         # Get data
         centers = self.calculate_cluster_centers()
         center_nodes = self.get_center_nodes()
@@ -103,7 +103,59 @@ class Clustering_Operations( Point_Matrix ):
 
         return distances_from_center
 
-                    
+    def calculate_all_possible_pairs(self):
+        cluster_nodes = self.get_center_nodes()
+
+        # Initialize all_possible_pairs
+        all_possible_pairs = []
+        for i in range(len(cluster_nodes)):
+            for j in range(i + 1, len(cluster_nodes)):
+                if i != j and (cluster_nodes[i], cluster_nodes[j]) not in all_possible_pairs:
+                    all_possible_pairs.append((cluster_nodes[i], cluster_nodes[j]))
+
+
+        return all_possible_pairs
+
+    def calculate_pair_objectives(self):
+        # Then, for each pair calculate the following objective 
+        # function:
+        # OBJij = Dihi + 0.75 * Dhihj + Djhj
+        # where dihi distance of farthest point in the cluster i, dhihj diatnce between hub i and hub j and djhj
+        # distance of farthest point in the cluster j. Also, consider 2*max(dihi). Lastly, get the maximum of pair 
+        # objectives as an objective function result.
+        
+        # Get data
+        all_pairs = self.calculate_all_possible_pairs()
+
+        # Initialize pair_objectives
+        pair_objectives = {} # {(point_id, point_id): objective, (point_id, point_id): objective, ...}
+
+        # Calculate pair objectives
+        for pair in all_pairs:
+            # Get cluster nodes
+            cluster_i, cluster_j = pair
+            cluster_i_points = [point for point in self.get_data() if point.get_cluster_id() == cluster_i.get_cluster_id()]
+            cluster_j_points = [point for point in self.get_data() if point.get_cluster_id() == cluster_j.get_cluster_id()]
+
+            # Get distances
+            distances_i = [np.linalg.norm(np.array(point.get_coordinates()) - np.array(cluster_i.get_coordinates())) for point in cluster_i_points]
+            distances_j = [np.linalg.norm(np.array(point.get_coordinates()) - np.array(cluster_j.get_coordinates())) for point in cluster_j_points]
+
+            # Get maximum distances
+            dihi = max(distances_i)
+            djhj = max(distances_j)
+
+            # Get distance between hubs
+            dhihj = np.linalg.norm(np.array(cluster_i.get_coordinates()) - np.array(cluster_j.get_coordinates()))
+
+            # Calculate objective
+            objective = dihi + 0.75 * dhihj + djhj
+
+            # Update pair_objectives
+            pair_objectives.update({(cluster_i.get_id(), cluster_j.get_id()): objective})
+    
+        return pair_objectives, max(pair_objectives.values())
+
     # Function to calculate cluster centers for other methods
     def calculate_cluster_centers(self):
         unique_labels = np.unique(self.get_cluster_vector())
@@ -200,5 +252,12 @@ if __name__ == '__main__':
     pcd.load_data()
 
     clustering = Clustering_Operations(pcd)
-    clustering.kmeans(n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto')
-    print(clustering.calculate_objective_function())
+    clustering.affinity_propagation(damping = 0.5, max_iter = 200, convergence_iter = 15)
+    print(clustering.get_cluster_vector())
+    
+    #clustering.kmeans(n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto')
+    #exit()
+    print(clustering.calculate_distances_from_center())
+    # all possible pairs
+    print([ (x.get_id(), y.get_id()) for x, y in clustering.calculate_all_possible_pairs()])
+    print(clustering.calculate_pair_objectives())
