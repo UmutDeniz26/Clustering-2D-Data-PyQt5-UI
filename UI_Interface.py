@@ -149,9 +149,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.toolbox_layout.addWidget(button)
 
     def change_side_buttons_visibility(self, sender):
-        # Hide all buttons
-        for item in self.toolbox_layout.children():
-            item.setVisible(False)
+        
+        # Hide all buttons of self.toolbox_layout
+        for i in range(self.toolbox_layout.count()):
+            self.toolbox_layout.itemAt(i).widget().setVisible(False)
             
         # Respect to the sender, show the buttons
         if sender == self.initial_solution_side:
@@ -176,7 +177,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def plot_initial_solution(self):
         # get plot
         initial_solution_data = self.get_data()
-        label_size = self.monitor_initial_solution.size()
+        label_size = self.monitor_initial_solution.width(), self.monitor_initial_solution.height()
         
         # 2D plot
         fig, ax = self.init_figure()
@@ -207,10 +208,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def plot_final_solution(self):
         
         # Get label size
-        label_size = self.monitor_final_solution.size()
+        label_size = self.monitor_final_solution.width(), self.monitor_final_solution.height()
         
         # Get output data
-        cluster_centers = self.get_cluster_centers()
+        cluster_centers = self.calculate_cluster_centers()
         center_nodes = self.get_center_nodes()
 
         # Generate 2D Plot 
@@ -240,17 +241,27 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.final_solution_png_hist.insert(0, pixmap)
             self.final_solution_hist_index = 0
 
-    def update_data_information_panel(self):
+    def print_cluster_information(self):
         self.clear_data_information_panel()
 
-        cluster_centers_label = self.get_cluster_centers()
+        # Gather information
+        cluster_centers_label = self.calculate_cluster_centers()
+        rounded_cluster_centers = [ (round(center[0], 2), round(center[1], 2)) for center in cluster_centers_label ]
+        cluster_items = self.get_cluster_items() # It is a dict like {0:[(x1, y1), (x2, y2)], 1:[(x3, y3), (x4, y4)], 1: ...}
+
         self.add_data_infromation_panel("Clustering labels: " + str(self.get_cluster_vector()))
-        self.add_data_infromation_panel("Cluster centers: " + str(cluster_centers_label).replace("\n", " "))
+        self.add_data_infromation_panel("\nCluster centers: " + str(rounded_cluster_centers).replace("  ", "").replace("\n", " ")+"\n")
+
+        self.add_data_infromation_panel("There are " + str(len(cluster_items)) + " clusters:\n")
+        for cluster_id, cluster_items in cluster_items.items():
+            self.add_data_infromation_panel("\nCluster " + str(cluster_id) + " items: " + 
+                str( [ (round(item.get_coordinates()[0], 2), round(item.get_coordinates()[1], 2)) for item in cluster_items ] ))
+                                                                                              
 
     def add_data_infromation_panel(self, data):
         old_text = self.monitor_information_panel.toPlainText()
         self.monitor_information_panel.setText(
-            old_text + "\n" + data
+            old_text + data
         )
 
     def clear_data_information_panel(self):
@@ -274,21 +285,90 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             dialog = Get_Data_Dialog(["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]])
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
-        
+                
                 args_dict = { 
-                    "n_clusters": int(data[0]) if data[0]!='' else 3, # Default value is 3
+                    "n_clusters": int(data[0]) if data[0] != '' else 3, # Default value is 3
                     "init": data[1],
-                    "max_iter": int(data[2]) if data[2]!='' else 300, # Default value is 300
-                    "algorithm": data[3] 
+                    "max_iter": int(data[2]) if data[2] != '' else 300, # Default value is 300
+                    "algorithm": data[3]
+                }
+            else:
+                return
+
+        elif sender.text() == 'Affinity Propagation':
+            dialog = Get_Data_Dialog(
+                ["Damping: ", "Max iterations: ", "Convergence iteration: "]
+            )
+            if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                data = dialog.get_input()
+                
+                args_dict = { 
+                    "damping": float(data[0]) if data[0] != '' else 0.5, # Default value is 0.5
+                    "max_iter": int(data[1]) if data[1] != '' else 200, # Default value is 200
+                    "convergence_iter": int(data[2]) if data[2] != '' else 15, # Default value is 15
+                }
+            else:
+                return
+
+        elif sender.text() == 'Mean Shift':
+            dialog = Get_Data_Dialog(["Bandwidth: ", "Max iterations: "])
+            if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                data = dialog.get_input()
+                
+                args_dict = { 
+                    "bandwidth": float(data[0]) if data[0] != '' else None, # Default value is None
+                    "max_iter": int(data[1]) if data[1] != '' else 300, # Default value is 300
                 }
                 print("Invalid input. Using default values.")
-        if sender.text() == 'Affinity Propagation':
-            dialog = Get_Data_Dialog(["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]])
+            else:
+                return
 
+        elif sender.text() == 'Spectral Clustering':
+            dialog = Get_Data_Dialog(["Number of clusters: ", ["Assign labels: ", "kmeans", "discretize"], "Eigen solver: ", "Random state: "])
+            if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                data = dialog.get_input()
+                
+                args_dict = { 
+                    "n_clusters": int(data[0]) if data[0] != '' else 8, # Default value is 8
+                    "assign_labels": data[1],
+                    "eigen_solver": data[2] if data[2] != '' else None, # Default value is None
+                    "random_state": int(data[3]) if data[3] != '' else None, # Default value is None
+                }
+                print("Invalid input. Using default values.")
+            else:
+                return
+
+        elif sender.text() == 'Hierarchical Clustering':
+            dialog = Get_Data_Dialog(["Number of clusters: ", ["Linkage: ", "ward", "complete", "average", "single"], "Distance threshold: "])
+            if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                data = dialog.get_input()
+                
+                args_dict = { 
+                    "n_clusters": int(data[0]) if data[0] != '' else 2, # Default value is 2
+                    "linkage": data[1],
+                    "distance_threshold": float(data[2]) if data[2] != '' else None, # Default value is None
+                }
+                print("Invalid input. Using default values.")
+            else:
+                return
+
+        elif sender.text() == 'DBSCAN':
+            dialog = Get_Data_Dialog(["Epsilon: ", "Min samples: ", "Metric: "])
+            if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                data = dialog.get_input()
+                
+                args_dict = { 
+                    "eps": float(data[0]) if data[0] != '' else 0.5, # Default value is 0.5
+                    "min_samples": int(data[1]) if data[1] != '' else 5, # Default value is 5
+                    "metric": data[2] if data[2] != '' else 'euclidean', # Default value is 'euclidean'
+                }
+                print("Invalid input. Using default values.")
+            else:
+                return
 
         self.method_handler_clustering(sender.text(), args_dict)
         self.plot_final_solution()
-        self.update_data_information_panel()
+        self.print_cluster_information()
 
     # Heuristics functions
 

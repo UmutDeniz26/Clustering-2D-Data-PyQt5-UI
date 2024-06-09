@@ -6,7 +6,6 @@ from PyQt5 import QtWidgets, QtGui
 class Get_Data_Dialog(QtWidgets.QDialog):
     def __init__(self, questions = ["Default question:"]):
         super(Get_Data_Dialog, self).__init__()
-        print("Get_Data_Dialog created.")
         self.setWindowTitle("Get Data Dialog")
         self.setGeometry(100, 100, len(questions)*200, 100)
         

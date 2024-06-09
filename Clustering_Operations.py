@@ -13,20 +13,34 @@ class Clustering_Operations( Point_Matrix ):
         :param image: np.ndarray or str
         """
         Point_Matrix.__init__(self, data = data)
-        
+
+    # Method handler for clustering
     def method_handler_clustering(self,method_name, args_dict):
         if method_name == 'K-Means':
-            self.kmeans(n_clusters = args_dict['n_clusters'], max_iter = args_dict['max_iter'], init = args_dict['init'], algorithm = args_dict['algorithm'])
+            self.kmeans(
+                n_clusters = args_dict['n_clusters'], max_iter = args_dict['max_iter'], init = args_dict['init'], algorithm = args_dict['algorithm']
+                )
         elif method_name == 'Affinity Propagation':
-            self.affinity_propagation()
+            self.affinity_propagation(
+                damping = args_dict['damping'], max_iter = args_dict['max_iter'], convergence_iter = args_dict['convergence_iter']
+                )
         elif method_name == 'Mean Shift':
-            self.mean_shift()
+            self.mean_shift(
+                bandwidth = args_dict['bandwidth'], max_iter = args_dict['max_iter']
+                )
         elif method_name == 'Spectral Clustering':
-            self.spectral_clustering()
+            self.spectral_clustering(
+                n_clusters = args_dict['n_clusters'], assign_labels = args_dict['assign_labels'],
+                eigen_solver = args_dict['eigen_solver'], random_state = args_dict['random_state']
+                )
         elif method_name == 'Hierarchical Clustering':
-            self.hierarchical_clustering()
+            self.hierarchical_clustering(
+                n_clusters = args_dict['n_clusters'], linkage = args_dict['linkage'], distance_threshold = args_dict['distance_threshold']
+                )
         elif method_name == 'DBSCAN':
-            self.dbscan()
+            self.dbscan(
+                eps = args_dict['eps'], min_samples = args_dict['min_samples'], metric = args_dict['metric']
+                )
         else:
             print("Method not found.")
 
@@ -53,7 +67,7 @@ class Clustering_Operations( Point_Matrix ):
             center_node = None
             for point in self.get_data():
                 if point.get_cluster_id() == i:
-                    distance = np.linalg.norm(point.get_coordinates() - self.get_cluster_centers()[i])
+                    distance = np.linalg.norm(point.get_coordinates() - self.calculate_cluster_centers()[i])
                     if distance < min_distance:
                         min_distance = distance
                         center_node = point.get_coordinates()
@@ -61,6 +75,32 @@ class Clustering_Operations( Point_Matrix ):
         
         return self.center_nodes
 
+    def get_cluster_items(self):
+        # Get cluster items
+        count_clusters = max(self.get_cluster_vector()) + 1
+
+        cluster_items = {i: [] for i in range(count_clusters)}
+        points = self.get_data()
+
+        for i in range(count_clusters):
+            for point in points:
+                if point.get_cluster_id() == i:
+                    cluster_items[i].append(point)
+                    
+        return cluster_items
+    
+
+    # Function to calculate cluster centers for other methods
+    def calculate_cluster_centers(self):
+        unique_labels = np.unique(self.get_cluster_vector())
+        data_points = np.array(self.get_data_as_list())
+        centers = np.array([data_points[self.get_cluster_vector() == label].mean(axis=0) for label in unique_labels])
+        return centers
+
+
+
+
+    ####################################### CLUSTERING METHODS #######################################
 
     def kmeans(self, n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto'):
         # Get data
@@ -76,75 +116,69 @@ class Clustering_Operations( Point_Matrix ):
         
         # Set cluster vector
         self.set_cluster_vector(kmeans.labels_)
-        self.set_cluster_centers(kmeans.cluster_centers_)
         self.set_result(kmeans)
 
         self.get_center_nodes()
 
-
-    def affinity_propagation(self):
+    def affinity_propagation(self, damping = 0.5, max_iter = 200, convergence_iter = 15):
         # Get data
         data = np.array(self.get_data_as_list())
         
         # Affinity Propagation
-        affinity_propagation = cluster.AffinityPropagation()
+        affinity_propagation = cluster.AffinityPropagation(damping = damping, max_iter = max_iter, convergence_iter = convergence_iter)
         affinity_propagation.fit(data)
         
         # Set cluster vector
         self.set_cluster_vector(affinity_propagation.labels_)
-        self.set_cluster_centers(affinity_propagation.cluster_centers_indices_)
         self.set_result(affinity_propagation)
         
-    def mean_shift(self):
+    def mean_shift(self, bandwidth = None, max_iter = 300):
         # Get data
         data = np.array(self.get_data_as_list())
         
         # Mean Shift
-        mean_shift = cluster.MeanShift()
+        mean_shift = cluster.MeanShift(bandwidth = bandwidth, max_iter = max_iter)
         mean_shift.fit(data)
         
         # Set cluster vector
         self.set_cluster_vector(mean_shift.labels_)
-        self.set_cluster_centers(mean_shift.cluster_centers_)
         self.set_result(mean_shift)
 
-    def spectral_clustering(self):
+    def spectral_clustering(self, n_clusters = 8, assign_labels = 'kmeans', eigen_solver = None, random_state = None):
         # Get data
         data = np.array(self.get_data_as_list())
         
         # Spectral Clustering
-        spectral_clustering = cluster.SpectralClustering()
+        spectral_clustering = cluster.SpectralClustering(n_clusters = n_clusters, assign_labels = assign_labels, eigen_solver = eigen_solver, random_state = random_state)
         spectral_clustering.fit(data)
         
         # Set cluster vector
         self.set_cluster_vector(spectral_clustering.labels_)
         self.set_result(spectral_clustering)
-        
-    def hierarchical_clustering(self):
+
+    def hierarchical_clustering(self, n_clusters = 2, linkage = 'ward', distance_threshold = None):
         # Get data
         data = np.array(self.get_data_as_list())
         
         # Hierarchical Clustering
-        hierarchical_clustering = cluster.AgglomerativeClustering()
+        hierarchical_clustering = cluster.AgglomerativeClustering(n_clusters = n_clusters, linkage = linkage, distance_threshold = distance_threshold)
         hierarchical_clustering.fit(data)
         
         # Set cluster vector
         self.set_cluster_vector(hierarchical_clustering.labels_)
-        self.set_cluster_centers(hierarchical_clustering.children_)
         self.set_result(hierarchical_clustering)
 
-
-    def dbscan(self):
+    def dbscan(self, eps = 0.5, min_samples = 5, metric = 'euclidean'):
         # Get data
         data = np.array(self.get_data_as_list())
         
         # DBSCAN
-        dbscan = cluster.DBSCAN()
+        dbscan = cluster.DBSCAN(eps = eps, min_samples = min_samples, metric = metric)
         dbscan.fit(data)
         
         # Set cluster vector
         self.set_cluster_vector(dbscan.labels_)
-        self.set_cluster_centers(dbscan.components_)
+        self.set_result(dbscan)
 
 if __name__ == '__main__':
     example_path = "src/points.txt"
@@ -154,4 +188,4 @@ if __name__ == '__main__':
     clustering = Clustering_Operations(pcd)
     clustering.kmeans(n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto')
     print(clustering.get_cluster_vector())
-    print(clustering.get_cluster_centers())
+    print(clustering.calculate_cluster_centers())

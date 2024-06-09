@@ -27,7 +27,6 @@ class Point_Matrix:
         self.set_filename(filename)
         self.set_data(data)
         self.set_cluster_vector([])
-        self.set_cluster_centers([])
         
         self.data_history = []
         self.history_index = 0
@@ -90,12 +89,6 @@ class Point_Matrix:
 
     def get_cluster_vector(self):
         return [point.get_cluster_id() for point in self.get_data()]
-    
-    def set_cluster_centers(self, cluster_centers):
-        self.cluster_centers = cluster_centers
-
-    def get_cluster_centers(self):
-        return self.cluster_centers
     
     def set_result(self, result):
         self.result = result
