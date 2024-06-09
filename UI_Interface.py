@@ -24,24 +24,30 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         uic.loadUi(template_path, self)
         self.show()
         
-
+        # History elements initialization
         self.initial_solution_png_hist = []; self.initial_solution_hist_index = 0
         self.final_solution_png_hist = []; self.final_solution_hist_index = 0
 
+        # Hide the full menu widget
         self.full_menu_widget.setVisible(False)
+
+        # Connect buttons to functions
         self.open_data.clicked.connect(self.load_data_button)
         self.manual_run.clicked.connect(self.manual_run_clicked)
-        self.add_all_buttons()
 
+        # Initialize side menu buttons
+        self.init_side_buttons()
+
+        # Side menu buttons
         self.side_menu_buttons = [ self.initial_solution_side, self.final_solution_side, self.clustering_side, self.heuristics_side ]
         for button in self.side_menu_buttons:
             button.clicked.connect(self.sidebar_button_clicked)
 
+        # Always display buttons
         self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.menu_exit, self.menu_file, self.manual_run]
 
+        # Initialize the data
         self.change_buttons_state()
-
-        print("UI_Script class initialized.")
 
 
     ###################### UI Operations ######################
@@ -65,8 +71,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             button.setDisabled(True) if button.isEnabled() else button.setDisabled(False)
 
 
-
-
     ###################### Manual Operations ######################
 
 
@@ -76,7 +80,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         nodes = self.manual_nodes.toPlainText()
 
         print(hubs, nodes)
-
          
     
     #############################################################
@@ -95,50 +98,62 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     ###################### Side Bar ######################
     
     def sidebar_button_clicked(self):
+        
+        # Get the sender
         sender = self.sender()
 
+        # Hide the full menu widget if the sender is different
         if not hasattr(self, 'hold_sender') or self.hold_sender != sender or not self.full_menu_widget.isVisible():
             self.full_menu_widget.setVisible(True)
         else:
             self.full_menu_widget.setVisible(False)
 
-        self.edit_full_menu_buttons(sender, self.toolbox_layout)    
-        
+        # Edit the full menu buttons and hold the sender
+        self.change_side_buttons_visibility(sender)    
         self.hold_sender = sender
 
-    def add_all_buttons(self):
-        button_names = [ 
-            [ 'Save As', 'Save', 'Export As', 'Undo', 'Redo' ], 
-            [ 'Save As', 'Save', 'Export As', 'Undo', 'Redo' ], 
-            [ 'K-Means', 'Affinity Propagation', 'Mean Shift', 'Spectral Clustering', 'Hierarchical Clustering', 'DBSCAN' ], 
-            [ 'Hill Climbing', 'Simulated Annealing' ] ]
+    def init_side_buttons(self):
+        buttons = [
+            # Initial Solution
+            { 'name': 'Save As', 'object_name': 'side_initial_save_as', 'function': self.initial_solution_button_clicked },
+            { 'name': 'Save', 'object_name': 'side_initial_save', 'function': self.initial_solution_button_clicked },
+            { 'name': 'Export As', 'object_name': 'side_initial_export_as', 'function': self.initial_solution_button_clicked },
+            { 'name': 'Undo', 'object_name': 'side_initial_undo', 'function': self.initial_solution_button_clicked },
+            { 'name': 'Redo', 'object_name': 'side_initial_redo', 'function': self.initial_solution_button_clicked },
 
-        button_object_names = [
-            [ 'side_initial_save_as', 'side_initial_save', 'side_initial_export_as', 'side_initial_undo', 'side_initial_redo' ],
-            [ 'side_final_save_as', 'side_final_save', 'side_final_export_as', 'side_final_undo', 'side_final_redo' ],
-            [ 'side_clustering_kmeans', 'side_clustering_affinity_propagation', 'side_clustering_mean_shift', 'side_clustering_spectral_clustering', 'side_clustering_hierarchical_clustering', 'side_clustering_dbscan' ],
-            [ 'side_heuristics_hill_climbing', 'side_heuristics_simulated_annealing' ] ]
-        
-        button_functions = [ 
-            self.initial_solution_button_clicked, 
-            self.final_solution_button_clicked, 
-            self.clustering_button_clicked, 
-            self.heuristics_button_clicked ]
+            # Final Solution
+            { 'name': 'Save As', 'object_name': 'side_final_save_as', 'function': self.final_solution_button_clicked },
+            { 'name': 'Save', 'object_name': 'side_final_save', 'function': self.final_solution_button_clicked },
+            { 'name': 'Export As', 'object_name': 'side_final_export_as', 'function': self.final_solution_button_clicked },
+            { 'name': 'Undo', 'object_name': 'side_final_undo', 'function': self.final_solution_button_clicked },
+            { 'name': 'Redo', 'object_name': 'side_final_redo', 'function': self.final_solution_button_clicked },
+            
+            # Clustering
+            { 'name': 'K-Means', 'object_name': 'side_clustering_kmeans', 'function': self.clustering_button_clicked },
+            { 'name': 'Affinity Propagation', 'object_name': 'side_clustering_affinity_propagation', 'function': self.clustering_button_clicked },
+            { 'name': 'Mean Shift', 'object_name': 'side_clustering_mean_shift', 'function': self.clustering_button_clicked },
+            { 'name': 'Spectral Clustering', 'object_name': 'side_clustering_spectral_clustering', 'function': self.clustering_button_clicked },
+            { 'name': 'Hierarchical Clustering', 'object_name': 'side_clustering_hierarchical_clustering', 'function': self.clustering_button_clicked },
+            { 'name': 'DBSCAN', 'object_name': 'side_clustering_dbscan', 'function': self.clustering_button_clicked },
+            
+            # Heuristics
+            { 'name': 'Hill Climbing', 'object_name': 'side_heuristics_hill_climbing', 'function': self.heuristics_button_clicked },
+            { 'name': 'Simulated Annealing', 'object_name': 'side_heuristics_simulated_annealing', 'function': self.heuristics_button_clicked }
+        ]
 
-        zipped = zip(button_names, button_object_names, button_functions)
+        # Generate buttons
+        for button_dict in buttons:
+            button = QtWidgets.QPushButton(button_dict['name'])
+            button.setObjectName(button_dict['object_name'])
+            button.clicked.connect(button_dict['function'])
+            self.toolbox_layout.addWidget(button)
 
-        for button_names, button_object_names, button_function in zipped:
-            for i in range(len(button_names)):
-                button = QtWidgets.QPushButton(button_names[i])
-                button.setObjectName(button_object_names[i])
-                button.clicked.connect(button_function)
-                self.toolbox_layout.addWidget(button)
-
-    def edit_full_menu_buttons(self, sender, container):
+    def change_side_buttons_visibility(self, sender):
         # Hide all buttons
-        for i in reversed(range(container.count())):
-            container.itemAt(i).widget().setVisible(False)
-
+        for item in self.toolbox_layout.children():
+            item.setVisible(False)
+            
+        # Respect to the sender, show the buttons
         if sender == self.initial_solution_side:
             button_object_names = [ 'side_initial_save_as', 'side_initial_save', 'side_initial_export_as', 'side_initial_undo', 'side_initial_redo' ]
         elif sender == self.final_solution_side:
@@ -158,9 +173,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
 
     # Display functions
-    def plot_initial_solution(self, label_size=(400, 400)):
+    def plot_initial_solution(self):
         # get plot
         initial_solution_data = self.get_data()
+        label_size = self.monitor_initial_solution.size()
         
         # 2D plot
         fig, ax = self.init_figure()
@@ -188,43 +204,44 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         return fig, ax
 
 
-    def plot_final_solution(self, label_size=(400, 400)):
-        if len(self.get_cluster_vector()) == 0:
-            raise ValueError("Cluster vector is empty.")
-        else:
-            cluster_centers = self.get_cluster_centers()
-            center_nodes = self.get_center_nodes()
+    def plot_final_solution(self):
+        
+        # Get label size
+        label_size = self.monitor_final_solution.size()
+        
+        # Get output data
+        cluster_centers = self.get_cluster_centers()
+        center_nodes = self.get_center_nodes()
 
-            # 2D plot 
-            fig, ax = self.init_figure()
+        # 2D plot 
+        fig, ax = self.init_figure()
 
-            color_list = [ 'red', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta' ]
-            
-            print("Test")
+        color_list = [ 'red', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta' ]
+        
 
-            for point in self.get_data():
-                if point.get_coordinates() in center_nodes:
-                    ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c='blue')
-                else:
-                    ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c=color_list[point.get_cluster_id()])
-            
-
-            for cluster_pos in cluster_centers:
-                ax.scatter(cluster_pos[0], cluster_pos[1], c='red', s=100, marker='x')
-            
-
-            # Convert plot to pixmap
-            pixmap = self.plot_to_pixmap(fig, label_size)
-            self.monitor_final_solution.setPixmap(pixmap)
-            plt.close(fig)
-
-            # Append to final solution image history
-            if self.final_solution_hist_index == 0:
-                self.final_solution_png_hist.insert(0, pixmap)
+        for point in self.get_data():
+            if point.get_coordinates() in center_nodes:
+                ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c='blue')
             else:
-                self.final_solution_png_hist = self.final_solution_png_hist[self.final_solution_hist_index:]
-                self.final_solution_png_hist.insert(0, pixmap)
-                self.final_solution_hist_index = 0
+                ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c=color_list[point.get_cluster_id()])
+        
+
+        for cluster_pos in cluster_centers:
+            ax.scatter(cluster_pos[0], cluster_pos[1], c='red', s=100, marker='x')
+        
+
+        # Convert plot to pixmap
+        pixmap = self.plot_to_pixmap(fig, label_size)
+        self.monitor_final_solution.setPixmap(pixmap)
+        plt.close(fig)
+
+        # Append to final solution image history
+        if self.final_solution_hist_index == 0:
+            self.final_solution_png_hist.insert(0, pixmap)
+        else:
+            self.final_solution_png_hist = self.final_solution_png_hist[self.final_solution_hist_index:]
+            self.final_solution_png_hist.insert(0, pixmap)
+            self.final_solution_hist_index = 0
 
     def update_data_information_panel(self):
         self.clear_data_information_panel()
