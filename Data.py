@@ -1,9 +1,12 @@
 
 # Class to represent a point in 3D space
+ID = 0
+
 class Point:
     def __init__(self, x, y,cluster_id=None):
         self.set_coordinates(x, y)
         self.set_cluster_id(cluster_id)
+        self.set_incremental_id()
 
     def __str__(self):
         return f"({self.__x}, {self.__y}), Cluster: {self.get_cluster_id()}\n"
@@ -17,6 +20,14 @@ class Point:
     def set_coordinates(self, x, y):
         self.__x = x
         self.__y = y
+
+    def set_incremental_id(self):
+        global ID
+        self.id = ID
+        ID += 1
+
+    def get_id(self):
+        return self.id
     
     def get_coordinates(self):
         return self.__x, self.__y

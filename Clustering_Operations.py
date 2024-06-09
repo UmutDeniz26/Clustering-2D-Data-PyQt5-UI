@@ -44,37 +44,35 @@ class Clustering_Operations( Point_Matrix ):
         else:
             print("Method not found.")
 
-    def get_cluster_points(self):
-        # Get cluster points
-        count_clusters = max(self.get_cluster_vector()) + 1 
 
-        self.cluster_points = [[] for i in range(count_clusters)]
+    ####################################### GETTERS ####################################### 
 
-        for i in range(count_clusters):
-            for point in self.get_data():
-                if point.get_cluster_id() == i:
-                    self.cluster_points[i].append(point.get_coordinates())
-                    
-        return self.cluster_points
+    def get_cluster_count(self):
+        return max(self.get_cluster_vector()) + 1
 
-    def get_center_nodes(self):
-        
+    # Function to get center nodes
+    def get_center_nodes(self):        
         # Minimum distance between a point and a cluster, will be the center of the cluster
-        count_clusters = max(self.get_cluster_vector()) + 1
+        cluster_centers = self.calculate_cluster_centers()
         self.center_nodes = []
-        for i in range(count_clusters):
-            min_distance = float('inf')
-            center_node = None
+        
+        # Get center nodes
+        for i in range(self.get_cluster_count()):
+            # Get points in cluster i
+            temp = []
             for point in self.get_data():
                 if point.get_cluster_id() == i:
-                    distance = np.linalg.norm(point.get_coordinates() - self.calculate_cluster_centers()[i])
-                    if distance < min_distance:
-                        min_distance = distance
-                        center_node = point.get_coordinates()
+                    distance = np.linalg.norm(point.get_coordinates() - cluster_centers[i])
+                    temp.append((point, distance))
+            
+            temp.sort(key = lambda x: x[1])
+            
+            center_node = temp[0][0]
             self.center_nodes.append(center_node)
-        
+
         return self.center_nodes
 
+    # Function to get cluster items
     def get_cluster_items(self):
         # Get cluster items
         count_clusters = max(self.get_cluster_vector()) + 1
@@ -89,14 +87,30 @@ class Clustering_Operations( Point_Matrix ):
                     
         return cluster_items
     
+    def calculate_objective_function(self):
+        # Get data
+        centers = self.calculate_cluster_centers()
+        center_nodes = self.get_center_nodes()
 
+        # Initialize distances_from_center
+        distances_from_center = {} # {point_id: distance, point_id: distance, ...}
+
+        # Calculate distances from center
+        for i, center_node in enumerate(center_nodes):
+            center = centers[i]
+            distance = np.linalg.norm(center_node.get_coordinates() - center)
+            distances_from_center.update({center_node.get_id(): distance})
+
+        return distances_from_center
+
+                    
     # Function to calculate cluster centers for other methods
     def calculate_cluster_centers(self):
         unique_labels = np.unique(self.get_cluster_vector())
         data_points = np.array(self.get_data_as_list())
         centers = np.array([data_points[self.get_cluster_vector() == label].mean(axis=0) for label in unique_labels])
         return centers
-
+    
 
 
 
@@ -187,5 +201,4 @@ if __name__ == '__main__':
 
     clustering = Clustering_Operations(pcd)
     clustering.kmeans(n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto')
-    print(clustering.get_cluster_vector())
-    print(clustering.calculate_cluster_centers())
+    print(clustering.calculate_objective_function())

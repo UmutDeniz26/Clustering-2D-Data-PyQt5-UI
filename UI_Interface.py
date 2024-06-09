@@ -184,6 +184,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         for point in initial_solution_data:
             ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c='black')
+            ax.text(point.get_coordinates()[0], point.get_coordinates()[1], str(point.get_id()), fontsize=12)
         
         # Convert plot to pixmap
         pixmap = self.plot_to_pixmap(fig, label_size)
@@ -221,11 +222,13 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         for point in self.get_data():
             if point.get_coordinates() in center_nodes:
                 ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c='blue')
+                ax.text(point.get_coordinates()[0], point.get_coordinates()[1], str(point.get_cluster_id()), fontsize=12)
             else:
                 ax.scatter(point.get_coordinates()[0], point.get_coordinates()[1], c=color_list[point.get_cluster_id()])
+                ax.text(point.get_coordinates()[0], point.get_coordinates()[1], str(point.get_cluster_id()), fontsize=12)
         
         for cluster_pos in cluster_centers:
-            ax.scatter(cluster_pos[0], cluster_pos[1], c='red', s=100, marker='x')
+            ax.scatter(cluster_pos[0], cluster_pos[1], c='blue', s=100, marker='x')
         
 
         # Convert plot to pixmap
