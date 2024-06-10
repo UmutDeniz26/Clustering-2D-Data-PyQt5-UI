@@ -108,6 +108,22 @@ class Point_Matrix:
         return self.result
     
 
+    # Function to get cluster items
+    def get_cluster_items(self):
+        # Get cluster items
+        count_clusters = max(self.get_cluster_vector()) + 1
+
+        cluster_items = {i: [] for i in range(count_clusters)}
+        points = self.get_data()
+
+        for i in range(count_clusters):
+            for point in points:
+                if point.get_cluster_id() == i:
+                    cluster_items[i].append(point)
+                    
+        return cluster_items
+    
+
     def set_data(self, data):
         if isinstance(data, list):
             for point in data:

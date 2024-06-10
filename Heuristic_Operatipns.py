@@ -33,20 +33,20 @@ class Heuristic_Operations(Point_Matrix):
 
     def hill_climbing(self, max_iterations=1000):
         # Get data
-        current_solution = np.array(self.get_data_as_list())
-        current_value = self.objective_function(current_solution)
 
-        for iteration in range(max_iterations):
-            neighbor = self.generate_neighbor(current_solution)
-            neighbor_value = self.objective_function(neighbor)
+        self.cluster_hubs = self.init_cluster_hubs()
 
-            if neighbor_value < current_value:
-                current_solution = neighbor
-                current_value = neighbor_value
+        for i in range(max_iterations):
+            # Assign new clusters
+            self.assign_new_clusters()
 
-            
-        return { "solution": current_solution, "value": current_value }
+            self.relocate_cluster_hubs()
+    
+            print("New value: ", self.objective_function(self.get_data_as_list()))
 
+        print("Cluster hubs: ", self.cluster_hubs)
+    
+    """
     def simulated_annealing(self, max_iterations=1000, initial_temperature=100.0, cooling_rate=0.99):
         # Get data
         current_solution = np.array(self.get_data_as_list())
@@ -82,81 +82,35 @@ class Heuristic_Operations(Point_Matrix):
             temperature *= cooling_rate
 
         return {"solution": best_solution, "value": best_value}
+    """
+    
+    # Initialize cluster hubs
+    def init_cluster_hubs(self, n_hubs=3):
+        return np.random.choice(self.get_data(), n_hubs, replace=False)
     
 
-    def relocate_hub(self):
-        clusters = self.get_clusters()
-        hubs = self.get_hubs()
+    # Calculate the distance between two points
+    def optimal_cluster(self, data, cluster_hubs):
+        distances = []
+        for i in range(len(cluster_hubs)):
+            distances.append(np.linalg.norm(np.array(data.get_coordinates()) - np.array(cluster_hubs[i].get_coordinates()), axis=0))
+        return np.argmin(distances, axis=0)
+    
+    
+    # Assign new clusters
+    def assign_new_clusters(self):
+        for point in self.get_data():
+            point.set_cluster_id(self.optimal_cluster(point, self.cluster_hubs))
+        
+    
+    # Relocate cluster hubs randomly
+    def relocate_cluster_hubs(self):
+        cluster_items = self.get_cluster_items()
 
-        # Choose a random cluster that has at least one non-hub node
-        eligible_clusters = [cluster for cluster in clusters if len(cluster) > 1]
-        if not eligible_clusters:
-            return
-
-        cluster = random.choice(eligible_clusters)
-
-        # Randomly choose a non-hub node from the cluster to become the new hub
-        non_hub_nodes = [node for node in cluster if node not in hubs]
-        new_hub = random.choice(non_hub_nodes)
-
-        # Update the hub assignment
-        old_hub = hubs[cluster]
-        hubs[cluster] = new_hub
-
-        # Move the old hub to be a regular node in the cluster
-        cluster.remove(new_hub)
-        cluster.append(old_hub)
-        self.set_hubs(hubs)
-
-    def reallocate_nodes(self):
-        clusters = self.get_clusters()
-        hubs = self.get_hubs()
-
-        # Choose a random cluster
-        cluster = random.choice(clusters)
-
-        # Ensure the cluster is not a single hub-node
-        if len(cluster) <= 1:
-            return
-
-        # Choose a random non-hub node to reallocate
-        non_hub_nodes = [node for node in cluster if node not in hubs]
-        node_to_reallocate = random.choice(non_hub_nodes)
-
-        # Choose a new cluster for the node
-        new_cluster = random.choice([c for c in clusters if c != cluster])
-
-        # Move the node to the new cluster
-        cluster.remove(node_to_reallocate)
-        new_cluster.append(node_to_reallocate)
-
-    def swap_nodes(self):
-        clusters = self.get_clusters()
-        hubs = self.get_hubs()
-
-        # Choose two different clusters
-        if len(clusters) < 2:
-            return
-
-        cluster1, cluster2 = random.sample(clusters, 2)
-
-        # Ensure both clusters have non-hub nodes
-        non_hub_nodes1 = [node for node in cluster1 if node not in hubs]
-        non_hub_nodes2 = [node for node in cluster2 if node not in hubs]
-
-        if not non_hub_nodes1 or not non_hub_nodes2:
-            return
-
-        # Choose a random non-hub node from each cluster
-        node1 = random.choice(non_hub_nodes1)
-        node2 = random.choice(non_hub_nodes2)
-
-        # Swap the nodes
-        cluster1.remove(node1)
-        cluster2.remove(node2)
-
-        cluster1.append(node2)
-        cluster2.append(node1)
+        for key, value in cluster_items.items():
+            self.cluster_hubs[key] = random.choice(value)
+    
+        
 
 if __name__ == '__main__':
     pcd = Point_Matrix("src/points.txt")
