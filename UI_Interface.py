@@ -1,22 +1,25 @@
-# Read UI_Interface.ui file and show the window
+# PyQT5 Interface libaries
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow
 
+# Essential Libraries
+import matplotlib.pyplot as plt
+import numpy as np
+import time
 import sys
 import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import os
-from PyQt5.QtWidgets import QMainWindow
-import time
 
 
+# Partition Operations
 from Clustering_Operations import Clustering_Operations
 from Heuristic_Operatipns import Heuristic_Operations
 
+# Get_Data_Dialog
 from Get_Data_Dialog import Get_Data_Dialog
+
 # Clustering_Operations requires Point_Matrix class from Data.py from init
 class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def __init__(self, template_path):
@@ -31,6 +34,13 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.information_panel_hist = []; self.information_panel_hist_index = 0
         self.results_panel_hist = []; self.results_panel_hist_index = 0
 
+        # Initialize the UI
+        self.init_ui()
+
+
+    ###################### UI Operations ######################
+
+    def init_ui(self):
         # Hide the full menu widget
         self.full_menu_widget.setVisible(False)
 
@@ -50,9 +60,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         # Initialize the data
         self.change_buttons_state("default", True)
-
-
-    ###################### UI Operations ######################
 
     def get_buttons(self):
         # Temporary buttons array
