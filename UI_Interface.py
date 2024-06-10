@@ -51,6 +51,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.manual_run.clicked.connect(self.manual_run_clicked)
         self.menu_clear_initial_solution.triggered.connect(self.clear_initial_solution)
         self.menu_clear_final_solution.triggered.connect(self.clear_final_solution)
+        self.menu_open_data.triggered.connect(self.load_data_button)
+        self.exit_menu.triggered.connect(self.exit_app)
 
         # Initialize side menu buttons
         self.init_side_buttons()
@@ -77,8 +79,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             buttons.append(button)
 
         # Manually added buttons
-        buttons.append(self.menu_save_initial_solution)
-        buttons.append(self.menu_save_final_solution)
+        buttons.append(self.menu_initial_save)
+        buttons.append(self.menu_final_save)
 
         return buttons
     
@@ -88,16 +90,16 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         @param state The state to set the buttons to. Can be "full", "source_opened" or "default".
         """
 
-
         if state == "source_opened":
             edit_buttons = [
                 self.final_solution_side, 
-                self.menu_save_final_solution, self.menu_save_initial_solution, self.menu_export_final_solution,
+                self.menu_initial_save, self.menu_final_save,
+                self.menu_initial_export_as, self.menu_final_export_as,
                 self.menu_clear_final_solution
             ]
         elif state == "default":
             edit_buttons = [
-                self.open_data, self.exit_menu, self.exit_button, 
+                self.open_data, self.exit_menu, self.exit_button, self.menu_open_data, self.menu_file,
                 self.findChild(QtWidgets.QPushButton, "source_open"), 
             ]
         elif state == "full":
@@ -138,92 +140,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.update_history(self.manual_hubs.toPlainText(), self.hubs_hist, self.hubs_hist_index)
         self.update_history(self.manual_nodes.toPlainText(), self.nodes_hist, self.nodes_hist_index)
     
-    #############################################################
-
-    ###################### File Operations ######################
-
-    def load_data_button(self):
-        data_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', "data.txt", "Data files (*.txt)")[0]
-        if data_path:
-            self.load_data(data_path)
-            self.plot_initial_solution()
-            self.change_buttons_state("source_opened", False)
-    
-    
-
-    ###################### Side Bar ######################
-    
-    def sidebar_button_clicked(self):
-        
-        # Get the sender
-        sender = self.sender()
-
-        # Hide the full menu widget if the sender is different
-        if not hasattr(self, 'hold_sender') or self.hold_sender != sender or not self.full_menu_widget.isVisible():
-            self.full_menu_widget.setVisible(True)
-        else:
-            self.full_menu_widget.setVisible(False)
-
-        # Edit the full menu buttons and hold the sender
-        self.change_side_buttons_visibility(sender)    
-        self.hold_sender = sender
-
-    def init_side_buttons(self):
-        buttons = [
-            # Initial Solution
-            { 'name': 'Save As', 'object_name': 'side_initial_save_as', 'function': self.initial_solution_button_clicked },
-            { 'name': 'Save', 'object_name': 'side_initial_save', 'function': self.initial_solution_button_clicked },
-            { 'name': 'Export As', 'object_name': 'side_initial_export_as', 'function': self.initial_solution_button_clicked },
-            { 'name': 'Undo', 'object_name': 'side_initial_undo', 'function': self.initial_solution_button_clicked },
-            { 'name': 'Redo', 'object_name': 'side_initial_redo', 'function': self.initial_solution_button_clicked },
-
-            # Final Solution
-            { 'name': 'Save As', 'object_name': 'side_final_save_as', 'function': self.final_solution_button_clicked },
-            { 'name': 'Save', 'object_name': 'side_final_save', 'function': self.final_solution_button_clicked },
-            { 'name': 'Export As', 'object_name': 'side_final_export_as', 'function': self.final_solution_button_clicked },
-            { 'name': 'Undo', 'object_name': 'side_final_undo', 'function': self.final_solution_button_clicked },
-            { 'name': 'Redo', 'object_name': 'side_final_redo', 'function': self.final_solution_button_clicked },
-            
-            # Clustering
-            { 'name': 'K-Means', 'object_name': 'side_clustering_kmeans', 'function': self.clustering_button_clicked },
-            { 'name': 'Affinity Propagation', 'object_name': 'side_clustering_affinity_propagation', 'function': self.clustering_button_clicked },
-            { 'name': 'Mean Shift', 'object_name': 'side_clustering_mean_shift', 'function': self.clustering_button_clicked },
-            { 'name': 'Spectral Clustering', 'object_name': 'side_clustering_spectral_clustering', 'function': self.clustering_button_clicked },
-            { 'name': 'Hierarchical Clustering', 'object_name': 'side_clustering_hierarchical_clustering', 'function': self.clustering_button_clicked },
-            { 'name': 'DBSCAN', 'object_name': 'side_clustering_dbscan', 'function': self.clustering_button_clicked },
-            
-            # Heuristics
-            { 'name': 'Hill Climbing', 'object_name': 'side_heuristics_hill_climbing', 'function': self.heuristics_button_clicked },
-            { 'name': 'Simulated Annealing', 'object_name': 'side_heuristics_simulated_annealing', 'function': self.heuristics_button_clicked }
-        ]
-
-        # Generate buttons
-        for button_dict in buttons:
-            button = QtWidgets.QPushButton(button_dict['name'])
-            button.setObjectName(button_dict['object_name'])
-            button.clicked.connect(button_dict['function'])
-            self.toolbox_layout.addWidget(button)
-
-    def change_side_buttons_visibility(self, sender):
-        
-        # Hide all buttons of self.toolbox_layout
-        for i in range(self.toolbox_layout.count()):
-            self.toolbox_layout.itemAt(i).widget().setVisible(False)
-            
-        # Respect to the sender, show the buttons
-        if sender == self.initial_solution_side:
-            button_object_names = [ 'side_initial_save_as', 'side_initial_save', 'side_initial_export_as', 'side_initial_undo', 'side_initial_redo' ]
-        elif sender == self.final_solution_side:
-            button_object_names = [ 'side_final_save_as', 'side_final_save', 'side_final_export_as', 'side_final_undo', 'side_final_redo' ]
-        elif sender == self.clustering_side:
-            button_object_names = [ 'side_clustering_kmeans', 'side_clustering_affinity_propagation', 'side_clustering_mean_shift', 'side_clustering_spectral_clustering', 'side_clustering_hierarchical_clustering', 'side_clustering_dbscan' ]
-        elif sender == self.heuristics_side:
-            button_object_names = [ 'side_heuristics_hill_climbing', 'side_heuristics_simulated_annealing' ]
-
-        for button_object_name in button_object_names:
-            button = self.findChild(QtWidgets.QPushButton, button_object_name)
-            button.setVisible(True)
-        
     ##############################################################
 
     ###################### Monitor Operations ######################
@@ -303,6 +219,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     def clear_initial_solution(self):
         self.monitor_initial_solution.clear()
+        self.monitor_final_solution.clear()
         self.change_buttons_state("default", True)
 
     def update_history(self, pixmap, history, index):
@@ -382,7 +299,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             progress_bar.setValue(i)
         self.statusBar().removeWidget(progress_bar)
 
-    # Clustering functions
+
+    ###################################################################
+
+    ###################### Clustering Operations ######################
 
     def clustering_button_clicked(self):
         # Get the sender
@@ -392,8 +312,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.clear_data_information_panel()
         self.clear_data_results_panel()
 
+        sender_name = sender.text().replace("menu_", "")
+
         # Get the arguments for the clustering operation, respect to the sender
-        if sender.text() == 'K-Means':
+        if sender_name == 'K-Means':
             dialog = Get_Data_Dialog(["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]])
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -407,7 +329,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             else:
                 return
 
-        elif sender.text() == 'Affinity Propagation':
+        elif sender_name == 'Affinity Propagation':
             dialog = Get_Data_Dialog(
                 ["Damping: ", "Max iterations: ", "Convergence iteration: "]
             )
@@ -422,7 +344,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             else:
                 return
 
-        elif sender.text() == 'Mean Shift':
+        elif sender_name == 'Mean Shift':
             dialog = Get_Data_Dialog(["Bandwidth: ", "Max iterations: "])
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -434,7 +356,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             else:
                 return
 
-        elif sender.text() == 'Spectral Clustering':
+        elif sender_name == 'Spectral Clustering':
             dialog = Get_Data_Dialog(["Number of clusters: ", ["Assign labels: ", "kmeans", "discretize"], "Eigen solver: ", "Random state: "])
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -448,7 +370,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             else:
                 return
 
-        elif sender.text() == 'Hierarchical Clustering':
+        elif sender_name == 'Hierarchical Clustering':
             dialog = Get_Data_Dialog(["Number of clusters: ", ["Linkage: ", "ward", "complete", "average", "single"], "Distance threshold: "])
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -461,7 +383,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             else:
                 return
 
-        elif sender.text() == 'DBSCAN':
+        elif sender_name == 'DBSCAN':
             dialog = Get_Data_Dialog(["Epsilon: ", "Min samples: ", "Metric: "])
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -478,7 +400,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.progress_bar(0.4)
 
         # Run the clustering operation
-        ret = self.method_handler_clustering(sender.text(), args_dict)
+        ret = self.method_handler_clustering(sender_name, args_dict)
         
         # Print the results and plot the final solution
         if self.plot_final_solution() == False:
@@ -490,40 +412,136 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.update_history(self.monitor_information_panel.toPlainText(), self.information_panel_hist, self.information_panel_hist_index)
         self.update_history(self.monitor_results.toPlainText(), self.results_panel_hist, self.results_panel_hist_index)
 
-    # Heuristics functions
+    ###################################################################
+
+    ###################### Heuristics Operations ######################
 
     def heuristics_button_clicked(self):
+        sender_name = self.sender().text().replace("menu_", "")
+        self.method_handler_heuristics(sender_name)
+
+
+    ##############################################################
+
+    ###################### Side Bar ##############################
+    
+    def sidebar_button_clicked(self):
+        
+        # Get the sender
         sender = self.sender()
-        self.method_handler_heuristics(sender.text())
+
+        # Hide the full menu widget if the sender is different
+        if not hasattr(self, 'hold_sender') or self.hold_sender != sender or not self.full_menu_widget.isVisible():
+            self.full_menu_widget.setVisible(True)
+        else:
+            self.full_menu_widget.setVisible(False)
+
+        # Edit the full menu buttons and hold the sender
+        self.change_side_buttons_visibility(sender)    
+        self.hold_sender = sender
+
+    def init_side_buttons(self):
+        buttons = [
+            # Initial Solution
+            { 'name': 'Save As', 'object_name': 'initial_save_as', 'function': self.initial_solution_button_clicked },
+            { 'name': 'Save', 'object_name': 'initial_save', 'function': self.initial_solution_button_clicked },
+            { 'name': 'Export As', 'object_name': 'initial_export_as', 'function': self.initial_solution_button_clicked },
+            { 'name': 'Undo', 'object_name': 'initial_undo', 'function': self.initial_solution_button_clicked },
+            { 'name': 'Redo', 'object_name': 'initial_redo', 'function': self.initial_solution_button_clicked },
+
+            # Final Solution
+            { 'name': 'Save As', 'object_name': 'final_save_as', 'function': self.final_solution_button_clicked },
+            { 'name': 'Save', 'object_name': 'final_save', 'function': self.final_solution_button_clicked },
+            { 'name': 'Export As', 'object_name': 'final_export_as', 'function': self.final_solution_button_clicked },
+            { 'name': 'Undo', 'object_name': 'final_undo', 'function': self.final_solution_button_clicked },
+            { 'name': 'Redo', 'object_name': 'final_redo', 'function': self.final_solution_button_clicked },
+            
+            # Clustering
+            { 'name': 'K-Means', 'object_name': 'clustering_kmeans', 'function': self.clustering_button_clicked },
+            { 'name': 'Affinity Propagation', 'object_name': 'clustering_affinity_propagation', 'function': self.clustering_button_clicked },
+            { 'name': 'Mean Shift', 'object_name': 'clustering_mean_shift', 'function': self.clustering_button_clicked },
+            { 'name': 'Spectral Clustering', 'object_name': 'clustering_spectral_clustering', 'function': self.clustering_button_clicked },
+            { 'name': 'Hierarchical Clustering', 'object_name': 'clustering_hierarchical_clustering', 'function': self.clustering_button_clicked },
+            { 'name': 'DBSCAN', 'object_name': 'clustering_dbscan', 'function': self.clustering_button_clicked },
+            
+            # Heuristics
+            { 'name': 'Hill Climbing', 'object_name': 'heuristics_hill_climbing', 'function': self.heuristics_button_clicked },
+            { 'name': 'Simulated Annealing', 'object_name': 'heuristics_simulated_annealing', 'function': self.heuristics_button_clicked }
+        ]
+
+        # Generate buttons
+        for button_dict in buttons:
+            button = QtWidgets.QPushButton(button_dict['name'])
+            button.setObjectName(button_dict['object_name'])
+            button.clicked.connect(button_dict['function'])
+            self.toolbox_layout.addWidget(button)
+
+            # Assign the menu button to the button
+            menu_button = self.findChild(QtWidgets.QAction, 'menu_' + button_dict['object_name'])
+            if menu_button:
+                menu_button.triggered.connect(button.click)
+
+    def change_side_buttons_visibility(self, sender):
+        
+        # Hide all buttons of self.toolbox_layout
+        for i in range(self.toolbox_layout.count()):
+            self.toolbox_layout.itemAt(i).widget().setVisible(False)
+            
+        # Respect to the sender, show the buttons
+        if sender == self.initial_solution_side:
+            button_object_names = [ 'initial_save_as', 'initial_save', 'initial_export_as', 'initial_undo', 'initial_redo' ]
+        elif sender == self.final_solution_side:
+            button_object_names = [ 'final_save_as', 'final_save', 'final_export_as', 'final_undo', 'final_redo' ]
+        elif sender == self.clustering_side:
+            button_object_names = [ 'clustering_kmeans', 'clustering_affinity_propagation', 'clustering_mean_shift', 'clustering_spectral_clustering', 'clustering_hierarchical_clustering', 'clustering_dbscan' ]
+        elif sender == self.heuristics_side:
+            button_object_names = [ 'heuristics_hill_climbing', 'heuristics_simulated_annealing' ]
+
+        for button_object_name in button_object_names:
+            button = self.findChild(QtWidgets.QPushButton, button_object_name)
+            button.setVisible(True)
+        
+
+    ###################################################################
+
+    ###################### Side Menu Operations ######################
+
+
+    def load_data_button(self):
+        data_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', "data.txt", "Data files (*.txt)")[0]
+        if data_path:
+            self.load_data(data_path)
+            self.plot_initial_solution()
+            self.change_buttons_state("source_opened", False)
 
     def initial_solution_button_clicked(self):
-        sender = self.sender()
+        sender_name = self.sender().text().replace("menu_", "")
         
         # Save to selected path
-        if sender.text() == 'Save As':
+        if sender_name == 'Save As':
             with open(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "initial_solution.txt", "Text files (*.txt)")[0], 'w') as f:
                 for point in self.get_data():
                     f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + "\n")
         
         # Save to exact path
-        elif sender.text() == 'Save':
+        elif sender_name == 'Save':
             with open("initial_solution.txt", 'w') as f:
                 for point in self.get_data():
                     f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + "\n")
         
         # Export as jpg
-        elif sender.text() == 'Export As':
+        elif sender_name == 'Export As':
             self.monitor_initial_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "initial_solution.png", "Images (*.png)")[0])
         
         # Undo and Redo operations
-        elif sender.text() == 'Undo':
+        elif sender_name == 'Undo':
             if self.initial_solution_hist_index < len(self.initial_solution_png_hist) - 1:
 
                 # Update the initial solution plot
                 self.initial_solution_hist_index += 1
                 self.monitor_initial_solution.setPixmap(self.initial_solution_png_hist[self.initial_solution_hist_index])
         
-        elif sender.text() == 'Redo':            
+        elif sender_name == 'Redo':            
             if self.initial_solution_hist_index > 0:
 
                 # Update the initial solution plot
@@ -532,25 +550,25 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             
 
     def final_solution_button_clicked(self):
-        sender = self.sender()
+        sender_name = self.sender().text().replace("menu_", "")
 
         # Save to selected path
-        if sender.text() == 'Save As': 
+        if sender_name == 'Save As': 
             with open(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "final_solution.txt", "Text files (*.txt)")[0], 'w') as f:
                 for point in self.get_data():
                     f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + " cluster: " + str(point.get_cluster_id()) + "\n")
                 
         # Save to exact path
-        elif sender.text() == 'Save':
+        elif sender_name == 'Save':
             with open("final_solution.txt", 'w') as f:
                 for point in self.get_data():
                     f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + " cluster: " + str(point.get_cluster_id()) + "\n")
         
         # Export as jpg
-        elif sender.text() == 'Export As':
+        elif sender_name == 'Export As':
             self.monitor_final_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "final_solution.png", "Images (*.png)")[0])
 
-        elif sender.text() == 'Undo':
+        elif sender_name == 'Undo':
             if self.final_solution_hist_index < len(self.final_solution_png_hist) - 1:
                 # Plot the previous solution
                 self.final_solution_hist_index += 1
@@ -571,7 +589,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 self.nodes_hist_index += 1
                 self.manual_nodes.setPlainText(self.nodes_hist[self.nodes_hist_index])
 
-        elif sender.text() == 'Redo':
+        elif sender_name == 'Redo':
             if self.final_solution_hist_index > 0:
                 # Plot the previous solution
                 self.final_solution_hist_index -= 1

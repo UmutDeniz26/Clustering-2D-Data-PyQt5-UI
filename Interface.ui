@@ -222,8 +222,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>:/icon/icon/activity-feed-32.ico</normaloff>
-                <normalon>:/icon/icon/activity-feed-48.ico</normalon>:/icon/icon/activity-feed-32.ico</iconset>
+                <normaloff>src/icons/open.svg</normaloff>src/icons/open.svg</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -246,7 +245,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>src/icons/UI Basic GLYPH-02.svg</normaloff>src/icons/UI Basic GLYPH-02.svg</iconset>
+                <normaloff>src/icons/source.svg</normaloff>src/icons/source.svg</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -269,7 +268,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>src/icons/UI Basic GLYPH-20.svg</normaloff>src/icons/UI Basic GLYPH-20.svg</iconset>
+                <normaloff>src/icons/output.svg</normaloff>src/icons/output.svg</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -292,7 +291,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>src/icons/UI Basic GLYPH-113.svg</normaloff>src/icons/UI Basic GLYPH-113.svg</iconset>
+                <normaloff>src/icons/segmentation.svg</normaloff>src/icons/segmentation.svg</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -315,7 +314,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>src/icons/UI Basic GLYPH-100.svg</normaloff>src/icons/UI Basic GLYPH-100.svg</iconset>
+                <normaloff>src/icons/edge_detection.svg</normaloff>src/icons/edge_detection.svg</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -446,7 +445,7 @@
      <x>0</x>
      <y>0</y>
      <width>1680</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -457,13 +456,13 @@
      <property name="title">
       <string>Export As</string>
      </property>
-     <addaction name="menu_export_initial_solution"/>
-     <addaction name="menu_export_final_solution"/>
+     <addaction name="menu_initial_export_as"/>
+     <addaction name="menu_final_export_as"/>
     </widget>
     <addaction name="menu_open_data"/>
     <addaction name="separator"/>
-    <addaction name="menu_save_initial_solution"/>
-    <addaction name="menu_save_final_solution"/>
+    <addaction name="menu_initial_save"/>
+    <addaction name="menu_final_save"/>
     <addaction name="separator"/>
     <addaction name="menu_export_as"/>
     <addaction name="separator"/>
@@ -484,15 +483,15 @@
      <property name="title">
       <string>Undo</string>
      </property>
-     <addaction name="menu_undo_initial_solution"/>
-     <addaction name="menu_undo_final_solution"/>
+     <addaction name="menu_initial_undo"/>
+     <addaction name="menu_final_undo"/>
     </widget>
     <widget class="QMenu" name="menu_redo">
      <property name="title">
       <string>Redo</string>
      </property>
-     <addaction name="menu_redo_initial_solution"/>
-     <addaction name="menu_redo_final_solution"/>
+     <addaction name="menu_initial_redo"/>
+     <addaction name="menu_final_redo"/>
     </widget>
     <addaction name="menu_clear"/>
     <addaction name="separator"/>
@@ -504,18 +503,18 @@
      <string>Clustering</string>
     </property>
     <addaction name="menu_clustering_kmeans"/>
-    <addaction name="menu_clustering_affinity_propogation"/>
+    <addaction name="menu_clustering_affinity_propagation"/>
     <addaction name="menu_clustering_mean_shift"/>
     <addaction name="menu_clustering_spectral_clustering"/>
-    <addaction name="menu_hierarchical_clustering"/>
-    <addaction name="menu_clustering_DBSCAN"/>
+    <addaction name="menu_clustering_hierarchical_clustering"/>
+    <addaction name="menu_clustering_dbscan"/>
    </widget>
    <widget class="QMenu" name="menu_heuristics">
     <property name="title">
      <string>Heuristics</string>
     </property>
-    <addaction name="menu_heuristic_hill_climbing"/>
-    <addaction name="menu_heuristic_simulated_annelig"/>
+    <addaction name="menu_heuristics_hill_climbing"/>
+    <addaction name="menu_heuristics_simulated_annelig"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_edit"/>
@@ -528,12 +527,12 @@
     <string>Open Data</string>
    </property>
   </action>
-  <action name="menu_save_initial_solution">
+  <action name="menu_initial_save">
    <property name="text">
     <string>Save Initial Solution</string>
    </property>
   </action>
-  <action name="menu_save_final_solution">
+  <action name="menu_final_save">
    <property name="text">
     <string>Save Final Solution</string>
    </property>
@@ -543,12 +542,12 @@
     <string>Exit</string>
    </property>
   </action>
-  <action name="menu_export_initial_solution">
+  <action name="menu_initial_export_as">
    <property name="text">
     <string>Initial Solution</string>
    </property>
   </action>
-  <action name="menu_export_final_solution">
+  <action name="menu_final_export_as">
    <property name="text">
     <string>Final Soluiton</string>
    </property>
@@ -563,22 +562,22 @@
     <string>Final Solution</string>
    </property>
   </action>
-  <action name="menu_undo_initial_solution">
+  <action name="menu_initial_undo">
    <property name="text">
     <string>Initial Solution</string>
    </property>
   </action>
-  <action name="menu_undo_final_solution">
+  <action name="menu_final_undo">
    <property name="text">
     <string>Final Solution</string>
    </property>
   </action>
-  <action name="menu_redo_initial_solution">
+  <action name="menu_initial_redo">
    <property name="text">
     <string>Initial Solution</string>
    </property>
   </action>
-  <action name="menu_redo_final_solution">
+  <action name="menu_final_redo">
    <property name="text">
     <string>Final Solution</string>
    </property>
@@ -588,7 +587,7 @@
     <string>K-means</string>
    </property>
   </action>
-  <action name="menu_clustering_affinity_propogation">
+  <action name="menu_clustering_affinity_propagation">
    <property name="text">
     <string>Affinity Propagation</string>
    </property>
@@ -603,22 +602,22 @@
     <string>Spectral Clustering</string>
    </property>
   </action>
-  <action name="menu_hierarchical_clustering">
+  <action name="menu_clustering_hierarchical_clustering">
    <property name="text">
     <string>Hierarchical Clustering</string>
    </property>
   </action>
-  <action name="menu_clustering_DBSCAN">
+  <action name="menu_clustering_dbscan">
    <property name="text">
     <string>DBSCAN</string>
    </property>
   </action>
-  <action name="menu_heuristic_hill_climbing">
+  <action name="menu_heuristics_hill_climbing">
    <property name="text">
     <string>Hill Climbing</string>
    </property>
   </action>
-  <action name="menu_heuristic_simulated_annelig">
+  <action name="menu_heuristics_simulated_annelig">
    <property name="text">
     <string>Simulated Anneling</string>
    </property>
