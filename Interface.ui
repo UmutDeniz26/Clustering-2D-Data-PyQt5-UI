@@ -467,7 +467,7 @@
     <addaction name="separator"/>
     <addaction name="menu_export_as"/>
     <addaction name="separator"/>
-    <addaction name="menu_exit"/>
+    <addaction name="exit_menu"/>
    </widget>
    <widget class="QMenu" name="menu_edit">
     <property name="title">
@@ -538,7 +538,7 @@
     <string>Save Final Solution</string>
    </property>
   </action>
-  <action name="menu_exit">
+  <action name="exit_menu">
    <property name="text">
     <string>Exit</string>
    </property>

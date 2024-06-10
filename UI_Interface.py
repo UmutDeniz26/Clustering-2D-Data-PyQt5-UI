@@ -46,10 +46,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         [ button.clicked.connect(self.sidebar_button_clicked) for button in self.side_menu_buttons ]
 
         # Always display buttons
-        self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.menu_exit, self.menu_file, self.manual_run]
+        self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.exit_menu, self.menu_file, self.manual_run]
 
         # Initialize the data
-        self.change_buttons_state()
+        self.change_buttons_state("default", True)
 
 
     ###################### UI Operations ######################
@@ -71,12 +71,33 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         return buttons
     
-    def change_buttons_state(self):
-        for button in self.get_buttons():
-            if button in self.always_display_buttons:
-                continue
-            button.setDisabled(True) if button.isEnabled() else button.setDisabled(False)
+    def change_buttons_state(self, state = "default", visible = True):
+        """
+        @brief Changes the enabled state of buttons.
+        @param state The state to set the buttons to. Can be "full", "source_opened" or "default".
+        """
+
+
+        if state == "source_opened":
+            edit_buttons = [
+                self.final_solution_side, 
+                self.menu_save_final_solution, self.menu_save_initial_solution, self.menu_export_final_solution,
+                self.menu_clear_final_solution
+            ]
+        elif state == "default":
+            edit_buttons = [
+                self.open_data, self.exit_menu, self.exit_button, 
+                self.findChild(QtWidgets.QPushButton, "source_open"), 
+            ]
+        elif state == "full":
+            edit_buttons = []
             
+        for button in self.get_buttons():
+            if button in edit_buttons:
+                button.setEnabled(visible)
+            else:
+                button.setEnabled(not visible)
+
     ###################### Manual Operations ######################
 
 
@@ -97,7 +118,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         if data_path:
             self.load_data(data_path)
             self.plot_initial_solution()
-            self.change_buttons_state()
+            self.change_buttons_state("source_opened", False)
     
     
 
@@ -243,6 +264,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         # Append to final solution image history
         self.update_history(pixmap, self.final_solution_png_hist, self.final_solution_hist_index)
+
+        # Button state change
+        self.change_buttons_state("full", False)
 
     def update_history(self, pixmap, history, index):
         if index == 0:
