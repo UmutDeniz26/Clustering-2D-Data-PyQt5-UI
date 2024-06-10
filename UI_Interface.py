@@ -247,11 +247,13 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.add_data_results_panel("Clustering labels: " + str(self.get_cluster_vector()))
         self.add_data_results_panel("\nCluster centers: " + str(rounded_cluster_centers).replace("  ", "").replace("\n", " ")+"\n")
 
-        self.add_data_results_panel("There are " + str(len(cluster_items)) + " clusters:\n")
+        self.add_data_results_panel("There are " + str(len(cluster_items)) + " clusters:")
         for cluster_id, cluster_items in cluster_items.items():
             self.add_data_results_panel("\nCluster " + str(cluster_id) + " items: " + 
-                str( [ (round(item.get_coordinates()[0], 2), round(item.get_coordinates()[1], 2)) for item in cluster_items ] ))
+                str( [ item.get_id() for item in cluster_items ] ))
             
+        self.add_data_results_panel("\n\nCluster Center Nodes: " + str([ point.get_id() for point in self.get_center_nodes() ]))
+
         self.add_data_results_panel("\n\nFarthest Hub Distances: \n" + str(self.calculate_distances_from_center()))
         self.add_data_results_panel("\n\nAll Possible Pairs: \n" + str([ (point_tuple[0].get_id(), point_tuple[1].get_id())
                                                                             for point_tuple in self.calculate_all_possible_pairs() ]))
@@ -260,6 +262,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         if ret:
             str_dict = ", ".join( [ str(key) + ": " + str(value) for key, value in ret.items() ] )
+            
+            if ret["auto"]:
+                self.add_data_infromation_panel("The clustering operation could not be successful with the given parameters!\nAuto parameters are used.")
 
             self.add_data_infromation_panel("\n\nParameters:\n" + str_dict)
 
