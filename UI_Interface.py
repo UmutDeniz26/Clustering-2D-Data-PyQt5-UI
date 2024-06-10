@@ -371,6 +371,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         layout = QtWidgets.QVBoxLayout()
         progress_bar = QtWidgets.QProgressBar()
         progress_bar.setRange(0, 100)
+        progress_bar.setFixedHeight(15)
+
         layout.addWidget(progress_bar)
 
         # Start the progress bar
