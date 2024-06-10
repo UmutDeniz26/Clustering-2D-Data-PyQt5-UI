@@ -149,8 +149,6 @@ class Clustering_Operations( Point_Matrix ):
         return centers
     
 
-
-
     ####################################### CLUSTERING METHODS #######################################
 
     def kmeans(self, n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto'):

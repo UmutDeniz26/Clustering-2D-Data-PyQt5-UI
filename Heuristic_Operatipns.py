@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from Data import Point_Matrix
+from Data import Point
 
 class Heuristic_Operations(Point_Matrix):
     def __init__(self, data: Point_Matrix):
@@ -69,6 +70,10 @@ class Heuristic_Operations(Point_Matrix):
         print("Cluster hubs: ", [hub.get_id() for hub in self.cluster_hubs])
     
     def constant_cluster_hubs_calculation(self, cluster_hubs):
+
+        if type(cluster_hubs[0]) != Point:
+            cluster_hubs = [ hub for hub in self.get_data() if hub.get_id() in cluster_hubs]
+
         # Get data
         data = self.get_data()
         # Assign new clusters

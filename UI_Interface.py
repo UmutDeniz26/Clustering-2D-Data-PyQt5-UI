@@ -113,8 +113,23 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         hubs = self.manual_hubs.toPlainText()
         nodes = self.manual_nodes.toPlainText()
 
-        print(hubs, nodes)
-         
+        hubs = [ int(hub) for hub in hubs.split(" ") ]
+
+        self.constant_cluster_hubs_calculation(hubs)
+
+
+        # Progress bar for the clustering operation
+        self.progress_bar(0.4)
+
+        # Print the results and plot the final solution
+        if self.plot_final_solution() == False:
+            self.add_data_infromation_panel("There is no cluster information to display.")
+            return
+        
+        self.print_cluster_information()
+
+        self.update_history(self.monitor_information_panel.toPlainText(), self.information_panel_hist, self.information_panel_hist_index)
+        self.update_history(self.monitor_results.toPlainText(), self.results_panel_hist, self.results_panel_hist_index)
     
     #############################################################
 
