@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from PyQt5.QtWidgets import QMainWindow
+import time
 
 
 from Clustering_Operations import Clustering_Operations
@@ -212,8 +213,11 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         label_size = self.monitor_final_solution.width(), self.monitor_final_solution.height()
         
         # Get output data
-        cluster_centers = self.calculate_cluster_centers()
-        center_nodes = [ point.get_coordinates() for point in self.get_center_nodes() ]
+        try:
+            cluster_centers = self.calculate_cluster_centers()
+            center_nodes = [ point.get_coordinates() for point in self.get_center_nodes() ]
+        except:
+            return False
 
         # Generate 2D Plot 
         fig, ax = self.init_figure()
@@ -244,8 +248,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.final_solution_png_hist.insert(0, pixmap)
             self.final_solution_hist_index = 0
 
-    def print_cluster_information(self):
-        self.clear_data_information_panel()
+    def print_cluster_information(self, ret=None):
+
+        # Results panel functions
 
         # Gather information
         cluster_centers_label = self.calculate_cluster_centers()
@@ -253,20 +258,28 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         cluster_items = self.get_cluster_items() # It is a dict like {0:[(x1, y1), (x2, y2)], 1:[(x3, y3), (x4, y4)], 1: ...}
         pair_objectives, max_pair_objective = self.calculate_pair_objectives()
 
-        self.add_data_infromation_panel("Clustering labels: " + str(self.get_cluster_vector()))
-        self.add_data_infromation_panel("\nCluster centers: " + str(rounded_cluster_centers).replace("  ", "").replace("\n", " ")+"\n")
+        self.add_data_results_panel("Clustering labels: " + str(self.get_cluster_vector()))
+        self.add_data_results_panel("\nCluster centers: " + str(rounded_cluster_centers).replace("  ", "").replace("\n", " ")+"\n")
 
-        self.add_data_infromation_panel("There are " + str(len(cluster_items)) + " clusters:\n")
+        self.add_data_results_panel("There are " + str(len(cluster_items)) + " clusters:\n")
         for cluster_id, cluster_items in cluster_items.items():
-            self.add_data_infromation_panel("\nCluster " + str(cluster_id) + " items: " + 
+            self.add_data_results_panel("\nCluster " + str(cluster_id) + " items: " + 
                 str( [ (round(item.get_coordinates()[0], 2), round(item.get_coordinates()[1], 2)) for item in cluster_items ] ))
             
-        self.add_data_infromation_panel("\n\nFarthest Hub Distances: \n" + str(self.calculate_distances_from_center()))
-        self.add_data_infromation_panel("\n\nAll Possible Pairs: \n" + str([ (point_tuple[0].get_id(), point_tuple[1].get_id())
+        self.add_data_results_panel("\n\nFarthest Hub Distances: \n" + str(self.calculate_distances_from_center()))
+        self.add_data_results_panel("\n\nAll Possible Pairs: \n" + str([ (point_tuple[0].get_id(), point_tuple[1].get_id())
                                                                             for point_tuple in self.calculate_all_possible_pairs() ]))
-        self.add_data_infromation_panel("\n\nPair Objectives: \n" + str(pair_objectives))
-        self.add_data_infromation_panel("\n\nMax Pair Objective: \n" + str(max_pair_objective))
-                                                                                              
+        self.add_data_results_panel("\n\nPair Objectives: \n" + str(pair_objectives))
+        self.add_data_results_panel("\n\nMax Pair Objective: \n" + str(max_pair_objective))
+
+        if ret:
+            str_dict = ", ".join( [ str(key) + ": " + str(value) for key, value in ret.items() ] )
+
+            self.add_data_results_panel("\n\n" + str_dict)
+
+        ##############################################################
+
+        # Information panel functions                                                                                
 
     def add_data_infromation_panel(self, data):
         old_text = self.monitor_information_panel.toPlainText()
@@ -286,10 +299,29 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def clear_data_results_panel(self):
         self.monitor_results.clear()
 
+    
+    def progress_bar(self, time_delay):
+
+        layout = QtWidgets.QVBoxLayout()
+        progress_bar = QtWidgets.QProgressBar()
+        progress_bar.setRange(0, 100)
+
+        layout.addWidget(progress_bar)
+        self.statusBar().addPermanentWidget(progress_bar)
+
+        for i in range(101):
+            time.sleep( time_delay / 100 )
+            progress_bar.setValue(i)
+            
+        self.statusBar().removeWidget(progress_bar)
+
     # Clustering functions
 
     def clustering_button_clicked(self):
         sender = self.sender()
+
+        self.clear_data_information_panel()
+        self.clear_data_results_panel()
 
         if sender.text() == 'K-Means':
             dialog = Get_Data_Dialog(["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]])
@@ -326,7 +358,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 data = dialog.get_input()
                 
                 args_dict = { 
-                    "bandwidth": float(data[0]) if data[0] != '' else None, # Default value is None
+                    "bandwidth": float(data[0]) if data[0] != '' else 250, # Default value is None
                     "max_iter": int(data[1]) if data[1] != '' else 300, # Default value is 300
                 }
                 print("Invalid input. Using default values.")
@@ -376,9 +408,14 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             else:
                 return
 
-        self.method_handler_clustering(sender.text(), args_dict)
-        self.plot_final_solution()
-        self.print_cluster_information()
+        self.progress_bar(0.7)
+        ret = self.method_handler_clustering(sender.text(), args_dict)
+        
+        if self.plot_final_solution() == False:
+            self.add_data_infromation_panel("There is no cluster information to display.")
+            return
+
+        self.print_cluster_information(ret) if ret else self.print_cluster_information()
 
     # Heuristics functions
 
