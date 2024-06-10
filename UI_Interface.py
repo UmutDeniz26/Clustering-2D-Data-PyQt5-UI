@@ -1,21 +1,25 @@
-# Read UI_Interface.ui file and show the window
+# PyQT5 Interface libaries
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
-
-import sys
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import os
 from PyQt5.QtWidgets import QMainWindow
 
+# Essential Libraries
+import matplotlib.pyplot as plt
+import numpy as np
+import time
+import sys
+import cv2
 
+
+# Partition Operations
 from Clustering_Operations import Clustering_Operations
 from Heuristic_Operatipns import Heuristic_Operations
 
+# Get_Data_Dialog
 from Get_Data_Dialog import Get_Data_Dialog
+
 # Clustering_Operations requires Point_Matrix class from Data.py from init
 class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def __init__(self, template_path):
@@ -27,7 +31,16 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         # History elements initialization
         self.initial_solution_png_hist = []; self.initial_solution_hist_index = 0
         self.final_solution_png_hist = []; self.final_solution_hist_index = 0
+        self.information_panel_hist = []; self.information_panel_hist_index = 0
+        self.results_panel_hist = []; self.results_panel_hist_index = 0
 
+        # Initialize the UI
+        self.init_ui()
+
+
+    ###################### UI Operations ######################
+
+    def init_ui(self):
         # Hide the full menu widget
         self.full_menu_widget.setVisible(False)
 
@@ -40,36 +53,57 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         # Side menu buttons
         self.side_menu_buttons = [ self.initial_solution_side, self.final_solution_side, self.clustering_side, self.heuristics_side ]
-        for button in self.side_menu_buttons:
-            button.clicked.connect(self.sidebar_button_clicked)
+        [ button.clicked.connect(self.sidebar_button_clicked) for button in self.side_menu_buttons ]
 
         # Always display buttons
-        self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.menu_exit, self.menu_file, self.manual_run]
+        self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.exit_menu, self.menu_file, self.manual_run]
 
         # Initialize the data
-        self.change_buttons_state()
-
-
-    ###################### UI Operations ######################
+        self.change_buttons_state("default", True)
 
     def get_buttons(self):
+        # Temporary buttons array
         buttons = []
 
+        # Get all QPushButton objects
         for button in self.findChildren(QtWidgets.QPushButton):
             buttons.append(button)
+        # Get all QMenu objects
         for button in self.findChildren(QtWidgets.QMenu):
             buttons.append(button)
+
+        # Manually added buttons
         buttons.append(self.menu_save_initial_solution)
         buttons.append(self.menu_save_final_solution)
 
         return buttons
     
-    def change_buttons_state(self):
-        for button in self.get_buttons():
-            if button in self.always_display_buttons:
-                continue
-            button.setDisabled(True) if button.isEnabled() else button.setDisabled(False)
+    def change_buttons_state(self, state = "default", visible = True):
+        """
+        @brief Changes the enabled state of buttons.
+        @param state The state to set the buttons to. Can be "full", "source_opened" or "default".
+        """
 
+
+        if state == "source_opened":
+            edit_buttons = [
+                self.final_solution_side, 
+                self.menu_save_final_solution, self.menu_save_initial_solution, self.menu_export_final_solution,
+                self.menu_clear_final_solution
+            ]
+        elif state == "default":
+            edit_buttons = [
+                self.open_data, self.exit_menu, self.exit_button, 
+                self.findChild(QtWidgets.QPushButton, "source_open"), 
+            ]
+        elif state == "full":
+            edit_buttons = []
+            
+        for button in self.get_buttons():
+            if button in edit_buttons:
+                button.setEnabled(visible)
+            else:
+                button.setEnabled(not visible)
 
     ###################### Manual Operations ######################
 
@@ -91,7 +125,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         if data_path:
             self.load_data(data_path)
             self.plot_initial_solution()
-            self.change_buttons_state()
+            self.change_buttons_state("source_opened", False)
     
     
 
@@ -191,12 +225,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.monitor_initial_solution.setPixmap(pixmap)
         plt.close(fig)
 
-        if self.initial_solution_hist_index == 0:
-            self.initial_solution_png_hist.insert(0, pixmap)
-        else:
-            self.initial_solution_png_hist = self.initial_solution_png_hist[self.initial_solution_hist_index:]
-            self.initial_solution_png_hist.insert(0, pixmap)
-            self.initial_solution_hist_index = 0
+        # Append to initial solution image history
+        self.update_history(pixmap, self.initial_solution_png_hist, self.initial_solution_hist_index)
 
     def init_figure(self):
         fig = plt.figure()
@@ -212,8 +242,11 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         label_size = self.monitor_final_solution.width(), self.monitor_final_solution.height()
         
         # Get output data
-        cluster_centers = self.calculate_cluster_centers()
-        center_nodes = [ point.get_coordinates() for point in self.get_center_nodes() ]
+        try:
+            cluster_centers = self.calculate_cluster_centers()
+            center_nodes = [ point.get_coordinates() for point in self.get_center_nodes() ]
+        except:
+            return False
 
         # Generate 2D Plot 
         fig, ax = self.init_figure()
@@ -237,45 +270,56 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         plt.close(fig)
 
         # Append to final solution image history
-        if self.final_solution_hist_index == 0:
-            self.final_solution_png_hist.insert(0, pixmap)
-        else:
-            self.final_solution_png_hist = self.final_solution_png_hist[self.final_solution_hist_index:]
-            self.final_solution_png_hist.insert(0, pixmap)
-            self.final_solution_hist_index = 0
+        self.update_history(pixmap, self.final_solution_png_hist, self.final_solution_hist_index)
 
-    def print_cluster_information(self):
-        self.clear_data_information_panel()
+        # Button state change
+        self.change_buttons_state("full", False)
+
+    def update_history(self, pixmap, history, index):
+        if index == 0:
+            history.insert(0, pixmap)
+        else:
+            history = history[index:]
+            history.insert(0, pixmap)
+            index = 0
+
+    def print_cluster_information(self, ret=None):
 
         # Gather information
         cluster_centers_label = self.calculate_cluster_centers()
         rounded_cluster_centers = [ (round(center[0], 2), round(center[1], 2)) for center in cluster_centers_label ]
-        cluster_items = self.get_cluster_items() # It is a dict like {0:[(x1, y1), (x2, y2)], 1:[(x3, y3), (x4, y4)], 1: ...}
+        cluster_items = self.get_cluster_items() 
         pair_objectives, max_pair_objective = self.calculate_pair_objectives()
 
-        self.add_data_infromation_panel("Clustering labels: " + str(self.get_cluster_vector()))
-        self.add_data_infromation_panel("\nCluster centers: " + str(rounded_cluster_centers).replace("  ", "").replace("\n", " ")+"\n")
+        # Results panel functions
+        self.add_data_results_panel("Clustering labels: " + str(self.get_cluster_vector()))
+        self.add_data_results_panel("\nCluster centers: " + str(rounded_cluster_centers).replace("  ", "").replace("\n", " ")+"\n")
 
-        self.add_data_infromation_panel("There are " + str(len(cluster_items)) + " clusters:\n")
+        self.add_data_results_panel("There are " + str(len(cluster_items)) + " clusters:\n")
         for cluster_id, cluster_items in cluster_items.items():
-            self.add_data_infromation_panel("\nCluster " + str(cluster_id) + " items: " + 
+            self.add_data_results_panel("\nCluster " + str(cluster_id) + " items: " + 
                 str( [ (round(item.get_coordinates()[0], 2), round(item.get_coordinates()[1], 2)) for item in cluster_items ] ))
             
-        self.add_data_infromation_panel("\n\nFarthest Hub Distances: \n" + str(self.calculate_distances_from_center()))
-        self.add_data_infromation_panel("\n\nAll Possible Pairs: \n" + str([ (point_tuple[0].get_id(), point_tuple[1].get_id())
+        self.add_data_results_panel("\n\nFarthest Hub Distances: \n" + str(self.calculate_distances_from_center()))
+        self.add_data_results_panel("\n\nAll Possible Pairs: \n" + str([ (point_tuple[0].get_id(), point_tuple[1].get_id())
                                                                             for point_tuple in self.calculate_all_possible_pairs() ]))
-        self.add_data_infromation_panel("\n\nPair Objectives: \n" + str(pair_objectives))
-        self.add_data_infromation_panel("\n\nMax Pair Objective: \n" + str(max_pair_objective))
-                                                                                              
+        self.add_data_results_panel("\n\nPair Objectives: \n" + str(pair_objectives))
+        self.add_data_results_panel("\n\nMax Pair Objective: \n" + str(max_pair_objective))
+
+        if ret:
+            str_dict = ", ".join( [ str(key) + ": " + str(value) for key, value in ret.items() ] )
+
+            self.add_data_results_panel("\n\n" + str_dict)
+
+        ##############################################################
+
+        # Information panel functions                                                                                
 
     def add_data_infromation_panel(self, data):
         old_text = self.monitor_information_panel.toPlainText()
         self.monitor_information_panel.setText(
             old_text + data
         )
-
-    def clear_data_information_panel(self):
-        self.monitor_information_panel.clear()
 
     def add_data_results_panel(self, data):
         old_text = self.monitor_results.toPlainText()
@@ -286,11 +330,37 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def clear_data_results_panel(self):
         self.monitor_results.clear()
 
+    def clear_data_information_panel(self):
+        self.monitor_information_panel.clear()
+
+
+    # For UX purposes    
+    def progress_bar(self, time_delay):
+
+        # Temporary progress bar generation
+        layout = QtWidgets.QVBoxLayout()
+        progress_bar = QtWidgets.QProgressBar()
+        progress_bar.setRange(0, 100)
+        layout.addWidget(progress_bar)
+
+        # Start the progress bar
+        self.statusBar().addPermanentWidget(progress_bar)
+        for i in range(101):
+            time.sleep( time_delay / 100 )
+            progress_bar.setValue(i)
+        self.statusBar().removeWidget(progress_bar)
+
     # Clustering functions
 
     def clustering_button_clicked(self):
+        # Get the sender
         sender = self.sender()
 
+        # Clear the information and results panels before the operation
+        self.clear_data_information_panel()
+        self.clear_data_results_panel()
+
+        # Get the arguments for the clustering operation, respect to the sender
         if sender.text() == 'K-Means':
             dialog = Get_Data_Dialog(["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]])
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
@@ -326,10 +396,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 data = dialog.get_input()
                 
                 args_dict = { 
-                    "bandwidth": float(data[0]) if data[0] != '' else None, # Default value is None
+                    "bandwidth": float(data[0]) if data[0] != '' else 250, # Default value is None
                     "max_iter": int(data[1]) if data[1] != '' else 300, # Default value is 300
                 }
-                print("Invalid input. Using default values.")
             else:
                 return
 
@@ -344,7 +413,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                     "eigen_solver": data[2] if data[2] != '' else None, # Default value is None
                     "random_state": int(data[3]) if data[3] != '' else None, # Default value is None
                 }
-                print("Invalid input. Using default values.")
             else:
                 return
 
@@ -358,7 +426,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                     "linkage": data[1],
                     "distance_threshold": float(data[2]) if data[2] != '' else None, # Default value is None
                 }
-                print("Invalid input. Using default values.")
             else:
                 return
 
@@ -372,13 +439,24 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                     "min_samples": int(data[1]) if data[1] != '' else 5, # Default value is 5
                     "metric": data[2] if data[2] != '' else 'euclidean', # Default value is 'euclidean'
                 }
-                print("Invalid input. Using default values.")
             else:
                 return
 
-        self.method_handler_clustering(sender.text(), args_dict)
-        self.plot_final_solution()
-        self.print_cluster_information()
+        # Progress bar for the clustering operation
+        self.progress_bar(0.4)
+
+        # Run the clustering operation
+        ret = self.method_handler_clustering(sender.text(), args_dict)
+        
+        # Print the results and plot the final solution
+        if self.plot_final_solution() == False:
+            self.add_data_infromation_panel("There is no cluster information to display.")
+            return
+        
+        self.print_cluster_information(ret) if ret else self.print_cluster_information()
+
+        self.update_history(self.monitor_information_panel.toPlainText(), self.information_panel_hist, self.information_panel_hist_index)
+        self.update_history(self.monitor_results.toPlainText(), self.results_panel_hist, self.results_panel_hist_index)
 
     # Heuristics functions
 
@@ -389,34 +467,34 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def initial_solution_button_clicked(self):
         sender = self.sender()
         
-        # Save and Export operations
-        if sender.text() == 'Save As': # Save as txt
-            
-            point_matrix = self.get_data()
+        # Save to selected path
+        if sender.text() == 'Save As':
             with open(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "initial_solution.txt", "Text files (*.txt)")[0], 'w') as f:
-                for point in point_matrix:
+                for point in self.get_data():
                     f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + "\n")
+        
+        # Save to exact path
         elif sender.text() == 'Save':
-            point_matrix = self.get_data()
             with open("initial_solution.txt", 'w') as f:
-                for point in point_matrix:
+                for point in self.get_data():
                     f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + "\n")
-        elif sender.text() == 'Export As': # export as jpg
+        
+        # Export as jpg
+        elif sender.text() == 'Export As':
             self.monitor_initial_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "initial_solution.png", "Images (*.png)")[0])
         
         # Undo and Redo operations
         elif sender.text() == 'Undo':
-            
             if self.initial_solution_hist_index < len(self.initial_solution_png_hist) - 1:
-                print( "Successfull " if self.undo() else "Unsuccessfull", " undo operation.")
 
+                # Update the initial solution plot
                 self.initial_solution_hist_index += 1
                 self.monitor_initial_solution.setPixmap(self.initial_solution_png_hist[self.initial_solution_hist_index])
-        elif sender.text() == 'Redo':
-            
+        
+        elif sender.text() == 'Redo':            
             if self.initial_solution_hist_index > 0:
-                print( "Successfull " if self.redo() else "Unsuccessfull", " redo operation.")
-            
+
+                # Update the initial solution plot
                 self.initial_solution_hist_index -= 1
                 self.monitor_initial_solution.setPixmap(self.initial_solution_png_hist[self.initial_solution_hist_index])
             
@@ -424,30 +502,49 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     def final_solution_button_clicked(self):
         sender = self.sender()
 
-        if sender.text() == 'Save As': # Save as txt
-            point_matrix = self.get_data()
+        # Save to selected path
+        if sender.text() == 'Save As': 
             with open(QtWidgets.QFileDialog.getSaveFileName(self, 'Save As', "final_solution.txt", "Text files (*.txt)")[0], 'w') as f:
-                for point in point_matrix:
+                for point in self.get_data():
                     f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + " cluster: " + str(point.get_cluster_id()) + "\n")
                 
+        # Save to exact path
         elif sender.text() == 'Save':
-            point_matrix = self.get_data()
             with open("final_solution.txt", 'w') as f:
-                for point in point_matrix:
+                for point in self.get_data():
                     f.write(str(point.get_coordinates()[0]) + " " + str(point.get_coordinates()[1]) + " cluster: " + str(point.get_cluster_id()) + "\n")
         
-        elif sender.text() == 'Export As': # export as jpg
+        # Export as jpg
+        elif sender.text() == 'Export As':
             self.monitor_final_solution.pixmap().save(QtWidgets.QFileDialog.getSaveFileName(self, 'Export As', "final_solution.png", "Images (*.png)")[0])
 
         elif sender.text() == 'Undo':
             if self.final_solution_hist_index < len(self.final_solution_png_hist) - 1:
+                # Plot the previous solution
                 self.final_solution_hist_index += 1
                 self.monitor_final_solution.setPixmap(self.final_solution_png_hist[self.final_solution_hist_index])
 
+                # Update the results panel
+                self.results_panel_hist_index += 1
+                self.monitor_results.setPlainText(self.results_panel_hist[self.results_panel_hist_index])
+
+                # Update the information panel
+                self.information_panel_hist_index += 1
+                self.monitor_information_panel.setPlainText(self.information_panel_hist[self.information_panel_hist_index])
+
         elif sender.text() == 'Redo':
             if self.final_solution_hist_index > 0:
+                # Plot the previous solution
                 self.final_solution_hist_index -= 1
                 self.monitor_final_solution.setPixmap(self.final_solution_png_hist[self.final_solution_hist_index])
+
+                # Update the results panel
+                self.results_panel_hist_index -= 1
+                self.monitor_results.setPlainText(self.results_panel_hist[self.results_panel_hist_index])
+
+                # Update the information panel
+                self.information_panel_hist_index -= 1
+                self.monitor_information_panel.setPlainText(self.information_panel_hist[self.information_panel_hist_index])
                 
 
     ##############################################################
@@ -456,7 +553,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     def exit_app(self):
         sys.exit()
-       
 
     def plot_to_pixmap(self, fig, label_size):
         fig.canvas.draw()
@@ -474,7 +570,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
 
 if __name__ == '__main__':
-    print("Testing UI_Script class")
 
     app = QtWidgets.QApplication(sys.argv)
     window = UI_Interface(template_path='Interface.ui')

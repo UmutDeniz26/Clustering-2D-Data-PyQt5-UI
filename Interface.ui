@@ -211,7 +211,7 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout">
+           <layout class="QVBoxLayout" name="side_menu_layout">
             <property name="spacing">
              <number>0</number>
             </property>
@@ -446,7 +446,7 @@
      <x>0</x>
      <y>0</y>
      <width>1680</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -467,7 +467,7 @@
     <addaction name="separator"/>
     <addaction name="menu_export_as"/>
     <addaction name="separator"/>
-    <addaction name="menu_exit"/>
+    <addaction name="exit_menu"/>
    </widget>
    <widget class="QMenu" name="menu_edit">
     <property name="title">
@@ -538,7 +538,7 @@
     <string>Save Final Solution</string>
    </property>
   </action>
-  <action name="menu_exit">
+  <action name="exit_menu">
    <property name="text">
     <string>Exit</string>
    </property>

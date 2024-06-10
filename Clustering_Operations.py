@@ -38,7 +38,7 @@ class Clustering_Operations( Point_Matrix ):
                 n_clusters = args_dict['n_clusters'], linkage = args_dict['linkage'], distance_threshold = args_dict['distance_threshold']
                 )
         elif method_name == 'DBSCAN':
-            self.dbscan(
+            return self.dbscan(
                 eps = args_dict['eps'], min_samples = args_dict['min_samples'], metric = args_dict['metric']
                 )
         else:
@@ -198,7 +198,7 @@ class Clustering_Operations( Point_Matrix ):
         self.set_cluster_vector(affinity_propagation.labels_)
         self.set_result(affinity_propagation)
         
-    def mean_shift(self, bandwidth = None, max_iter = 300):
+    def mean_shift(self, bandwidth = 250, max_iter = 300):
         # Get data
         data = np.array(self.get_data_as_list())
         
@@ -241,10 +241,28 @@ class Clustering_Operations( Point_Matrix ):
         # DBSCAN
         dbscan = cluster.DBSCAN(eps = eps, min_samples = min_samples, metric = metric)
         dbscan.fit(data)
-        
-        # Set cluster vector
-        self.set_cluster_vector(dbscan.labels_)
-        self.set_result(dbscan)
+
+        # If DBSCAN could not find any cluster, try different parameters
+        if len(dbscan.labels_) == 0 or -1 in dbscan.labels_:
+            target_class = 3
+
+            print("DBSCAN could not find any cluster properly. Trying different parameters...( n clusters = {} )".format(target_class+1))
+            
+            eps_list = np.linspace(data.min(), data.max(), 100)
+            min_samples_list =np.linspace(1, 100, 100)
+
+            for eps in eps_list:
+                for min_samples in min_samples_list:
+                    dbscan = cluster.DBSCAN(eps = eps, min_samples = int(min_samples), metric = metric)
+                    dbscan.fit(data)
+                    if max(dbscan.labels_) == target_class and -1 not in dbscan.labels_:          
+                        self.set_cluster_vector(dbscan.labels_)
+                        self.set_result(dbscan)
+                        return {"eps": eps, "min_samples": min_samples, "metric": metric, "auto": True}
+        else:
+            self.set_cluster_vector(dbscan.labels_)
+            self.set_result(dbscan)
+            return {"eps": eps, "min_samples": min_samples, "metric": metric, "auto": False}
 
 if __name__ == '__main__':
     example_path = "src/points.txt"
@@ -252,7 +270,7 @@ if __name__ == '__main__':
     pcd.load_data()
 
     clustering = Clustering_Operations(pcd)
-    clustering.dbscan(eps = 0.5, min_samples = 5, metric = 'euclidean')
+    clustering.dbscan(eps = 200, min_samples = 5, metric = 'euclidean')
     print(clustering.get_cluster_vector())
     
     #clustering.kmeans(n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto')
@@ -260,4 +278,4 @@ if __name__ == '__main__':
     print(clustering.calculate_distances_from_center())
     # all possible pairs
     print([ (x.get_id(), y.get_id()) for x, y in clustering.calculate_all_possible_pairs()])
-    print(clustering.calculate_pair_objectives())
+    #print(clustering.calculate_pair_objectives())
