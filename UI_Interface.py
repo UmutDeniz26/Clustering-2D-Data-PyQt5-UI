@@ -33,6 +33,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.final_solution_png_hist = []; self.final_solution_hist_index = 0
         self.information_panel_hist = []; self.information_panel_hist_index = 0
         self.results_panel_hist = []; self.results_panel_hist_index = 0
+        self.hubs_hist = []; self.hubs_hist_index = 0
+        self.nodes_hist = []; self.nodes_hist_index = 0
 
         # Initialize the UI
         self.init_ui()
@@ -47,6 +49,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         # Connect buttons to functions
         self.open_data.clicked.connect(self.load_data_button)
         self.manual_run.clicked.connect(self.manual_run_clicked)
+        self.menu_clear_initial_solution.triggered.connect(self.clear_initial_solution)
+        self.menu_clear_final_solution.triggered.connect(self.clear_final_solution)
 
         # Initialize side menu buttons
         self.init_side_buttons()
@@ -130,6 +134,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         self.update_history(self.monitor_information_panel.toPlainText(), self.information_panel_hist, self.information_panel_hist_index)
         self.update_history(self.monitor_results.toPlainText(), self.results_panel_hist, self.results_panel_hist_index)
+
+        self.update_history(self.manual_hubs.toPlainText(), self.hubs_hist, self.hubs_hist_index)
+        self.update_history(self.manual_nodes.toPlainText(), self.nodes_hist, self.nodes_hist_index)
     
     #############################################################
 
@@ -289,6 +296,14 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         # Button state change
         self.change_buttons_state("full", False)
+
+    def clear_final_solution(self):
+        self.monitor_final_solution.clear()
+        self.change_buttons_state("source_opened", False)
+
+    def clear_initial_solution(self):
+        self.monitor_initial_solution.clear()
+        self.change_buttons_state("default", True)
 
     def update_history(self, pixmap, history, index):
         if index == 0:
@@ -546,6 +561,13 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 # Update the information panel
                 self.information_panel_hist_index += 1
                 self.monitor_information_panel.setPlainText(self.information_panel_hist[self.information_panel_hist_index])
+            
+            if self.hubs_hist_index < len(self.hubs_hist) - 1:
+                self.hubs_hist_index += 1
+                self.manual_hubs.setPlainText(self.hubs_hist[self.hubs_hist_index])
+                
+                self.nodes_hist_index += 1
+                self.manual_nodes.setPlainText(self.nodes_hist[self.nodes_hist_index])
 
         elif sender.text() == 'Redo':
             if self.final_solution_hist_index > 0:
@@ -560,6 +582,13 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 # Update the information panel
                 self.information_panel_hist_index -= 1
                 self.monitor_information_panel.setPlainText(self.information_panel_hist[self.information_panel_hist_index])
+
+            if self.hubs_hist_index > 0:
+                self.hubs_hist_index -= 1
+                self.manual_hubs.setPlainText(self.hubs_hist[self.hubs_hist_index])
+                
+                self.nodes_hist_index -= 1
+                self.manual_nodes.setPlainText(self.nodes_hist[self.nodes_hist_index])
                 
 
     ##############################################################
