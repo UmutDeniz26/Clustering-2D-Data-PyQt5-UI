@@ -252,7 +252,7 @@ if __name__ == '__main__':
     pcd.load_data()
 
     clustering = Clustering_Operations(pcd)
-    clustering.affinity_propagation(damping = 0.5, max_iter = 200, convergence_iter = 15)
+    clustering.dbscan(eps = 0.5, min_samples = 5, metric = 'euclidean')
     print(clustering.get_cluster_vector())
     
     #clustering.kmeans(n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto')
