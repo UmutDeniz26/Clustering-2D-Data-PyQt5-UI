@@ -58,10 +58,6 @@ class Get_Data_Dialog(QtWidgets.QDialog):
                 inputs.append(textbox.currentText())
         return inputs
 
-    def __del__(self):
-        print("Get_Data_Dialog deleted.")
-
-
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     dialog = Get_Data_Dialog(["What is your name?", "What is your age?", ["What is your favorite color?", "Red", "Green", "Blue"]])

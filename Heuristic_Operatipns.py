@@ -7,11 +7,11 @@ class Heuristic_Operations(Point_Matrix):
     def __init__(self, data: Point_Matrix):
         Point_Matrix.__init__(self, data = data)
 
-    def method_handler_heuristics(self, method_name):
+    def method_handler_heuristics(self, method_name, arg_dict):
         if method_name == 'Hill Climbing':
-            return self.hill_climbing()
+            return self.hill_climbing(arg_dict['max_iterations'])
         elif method_name == 'Simulated Annealing':
-            return self.simulated_annealing()
+            return self.simulated_annealing(arg_dict['max_iterations'], arg_dict['initial_temperature'], arg_dict['cooling_rate'])
         else:
             print("Method not found.")
 
@@ -91,7 +91,6 @@ class Heuristic_Operations(Point_Matrix):
 
             # If the new solution is better, update the current solution and the best solution
             if new_objective_score < current_objective_score or random.random() < acceptance_probability:
-                current_cluster_hubs = temp_cluster_hubs
                 current_objective_score = new_objective_score
 
                 if new_objective_score < best_objective_score:
@@ -102,6 +101,7 @@ class Heuristic_Operations(Point_Matrix):
             temperature *= cooling_rate
 
         self.assign_new_clusters(best_cluster_hubs)
+        self.cluster_hubs = best_cluster_hubs
 
         return {"cluster_hubs": [hub.get_id() for hub in best_cluster_hubs], "value": best_objective_score}
 

@@ -417,6 +417,13 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.add_data_infromation_panel("There is no cluster information to display.")
             return
         
+        # Print arg dict to information panel
+        self.add_data_infromation_panel("\n\nParameters that collected from the user:\n")
+        for key, value in args_dict.items():
+            self.add_data_infromation_panel(key + ": " + str(value) + ", " )
+        self.add_data_infromation_panel("\n\n")
+
+
         self.print_cluster_information(ret)
 
         self.update_history(self.monitor_information_panel.toPlainText(), self.information_panel_hist, self.information_panel_hist_index)
@@ -428,8 +435,58 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     def heuristics_button_clicked(self):
         sender_name = self.sender().text().replace("menu_", "")
-        self.method_handler_heuristics(sender_name)
 
+        # Clear the information and results panels before the operation
+        self.clear_data_information_panel()
+        self.clear_data_results_panel()
+
+        if sender_name == 'Hill Climbing':
+            dialog = Get_Data_Dialog(["Max iterations: "])
+            if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                data = dialog.get_input()
+                
+                args_dict = { 
+                    "max_iterations": int(data[0]) if data[0] != '' else 1000, # Default value is 1000
+                }
+            else:
+                return
+            
+        elif sender_name == 'Simulated Annealing':
+            dialog = Get_Data_Dialog(["Max iterations: ", "Initial temperature: ", "Cooling rate: "])
+            if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                data = dialog.get_input()
+                
+                args_dict = { 
+                    "max_iterations": int(data[0]) if data[0] != '' else 1000, # Default value is 1000
+                    "initial_temperature": float(data[1]) if data[1] != '' else 100.0, # Default value is 100.0
+                    "cooling_rate": float(data[2]) if data[2] != '' else 0.99, # Default value is 0.99
+                }
+            else:
+                return
+
+
+        # Progress bar for the clustering operation
+        self.progress_bar(0.4)
+
+        # Run the clustering operation
+        ret = self.method_handler_clustering(sender_name, args_dict)
+        
+        # Print the results and plot the final solution
+        if self.plot_final_solution() == False:
+            self.add_data_infromation_panel("There is no cluster information to display.")
+            return
+
+        # Print arg dict to information panel
+        self.add_data_infromation_panel("\n\nParameters that collected from the user:\n")
+        for key, value in args_dict.items():
+            self.add_data_infromation_panel(key + ": " + str(value) + ", " )
+        self.add_data_infromation_panel("\n\n")
+
+
+        self.print_cluster_information(ret)
+
+        self.update_history(self.monitor_information_panel.toPlainText(), self.information_panel_hist, self.information_panel_hist_index)
+        self.update_history(self.monitor_results.toPlainText(), self.results_panel_hist, self.results_panel_hist_index)
 
     ##############################################################
 
