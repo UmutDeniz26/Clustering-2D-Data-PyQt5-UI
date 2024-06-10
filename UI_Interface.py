@@ -119,10 +119,15 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         hubs = self.manual_hubs.toPlainText()
         nodes = self.manual_nodes.toPlainText()
 
+        # Clear the information and results panels before the operation
+        self.clear_data_information_panel()
+        self.clear_data_results_panel()
+
+        # Get the arguments for the clustering operation
         hubs = [ int(hub) for hub in hubs.split(" ") ]
 
+        # Progress bar for the clustering operation
         self.constant_cluster_hubs_calculation(hubs)
-
 
         # Progress bar for the clustering operation
         self.progress_bar(0.4)
@@ -256,7 +261,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         if ret:
             str_dict = ", ".join( [ str(key) + ": " + str(value) for key, value in ret.items() ] )
 
-            self.add_data_results_panel("\n\n" + str_dict)
+            self.add_data_infromation_panel("\n\nParameters:\n" + str_dict)
 
         ##############################################################
 
@@ -407,7 +412,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.add_data_infromation_panel("There is no cluster information to display.")
             return
         
-        self.print_cluster_information(ret) if ret else self.print_cluster_information()
+        self.print_cluster_information(ret)
 
         self.update_history(self.monitor_information_panel.toPlainText(), self.information_panel_hist, self.information_panel_hist_index)
         self.update_history(self.monitor_results.toPlainText(), self.results_panel_hist, self.results_panel_hist_index)
