@@ -14,9 +14,13 @@ class Heuristic_Operations(Point_Matrix):
         else:
             print("Method not found.")
 
-    def objective_function(self, data):
-        # For example, sum of distances between points
-        return np.sum(np.linalg.norm(data - np.mean(data, axis=0), axis=1))
+    def objective_function(self, data, cluster_hubs):
+        # Calculate the sum of the distances from each point to the nearest cluster hub
+        total_distance = 0
+        for point in data:
+            its_hub = cluster_hubs[point.get_cluster_id()]
+            total_distance += np.linalg.norm(np.array(point.get_coordinates()) - np.array(its_hub.get_coordinates()), axis=0)
+        return total_distance
 
     def generate_neighbor(self, data):
         if len(data) == 0:
@@ -34,18 +38,43 @@ class Heuristic_Operations(Point_Matrix):
     def hill_climbing(self, max_iterations=1000):
         # Get data
 
-        self.cluster_hubs = self.init_cluster_hubs()
+        # Initialize cluster hubs and get initial solution value
+        self.cluster_hubs = self.init_cluster_hubs();self.assign_new_clusters(self.cluster_hubs)
+        objective_score = self.objective_function( self.get_data(), self.cluster_hubs)
+
+        no_change_count = 0
 
         for i in range(max_iterations):
             # Assign new clusters
-            self.assign_new_clusters()
+            temp_cluster_hubs = self.relocate_cluster_hubs()
+            self.assign_new_clusters(self.cluster_hubs)
 
-            self.relocate_cluster_hubs()
-    
-            print("New value: ", self.objective_function(self.get_data_as_list()))
+            self.swap_nodes(self.get_data()) if random.random() < 0.1 else None
+            self.reallocate_nodes(self.get_data()) if random.random() < 0.1 else None
 
-        print("Cluster hubs: ", self.cluster_hubs)
+            if self.objective_function( self.get_data(), temp_cluster_hubs) < objective_score:
+                # Update the cluster hubs and the objective score
+                self.cluster_hubs = temp_cluster_hubs
+                objective_score = self.objective_function( self.get_data(), self.cluster_hubs)
+                
+                no_change_count = 0
+            else:
+                no_change_count += 1
+                
+            if no_change_count > 100:
+                break
+
+            print("New value: ", self.objective_function( self.get_data(), self.cluster_hubs))
+
+        print("Cluster hubs: ", [hub.get_id() for hub in self.cluster_hubs])
     
+    def constant_cluster_hubs_calculation(self, cluster_hubs):
+        # Get data
+        data = self.get_data()
+        # Assign new clusters
+        self.assign_new_clusters(cluster_hubs)
+        # Calculate the objective score
+        return self.objective_function(data, cluster_hubs)
     """
     def simulated_annealing(self, max_iterations=1000, initial_temperature=100.0, cooling_rate=0.99):
         # Get data
@@ -98,18 +127,39 @@ class Heuristic_Operations(Point_Matrix):
     
     
     # Assign new clusters
-    def assign_new_clusters(self):
+    def assign_new_clusters(self, cluster_hubs):
         for point in self.get_data():
-            point.set_cluster_id(self.optimal_cluster(point, self.cluster_hubs))
+            point.set_cluster_id(self.optimal_cluster(point, cluster_hubs))
         
     
     # Relocate cluster hubs randomly
     def relocate_cluster_hubs(self):
         cluster_items = self.get_cluster_items()
 
+        temp_hubs = [0]*3
         for key, value in cluster_items.items():
-            self.cluster_hubs[key] = random.choice(value)
+            temp_hubs[key] = random.choice(value)
     
+        return temp_hubs    
+    
+    def swap_nodes(self, data):
+
+        possible_indexes = [i for i in range(len(data)) if data[i].get_id() not in [hub.get_id() for hub in self.cluster_hubs]]
+        
+        # Random i and j values
+        i = random.choice(possible_indexes)
+        j = random.choice(possible_indexes)
+
+        # Swap the nodes
+        temp = data[i].get_cluster_id()
+        data[i].set_cluster_id( data[j].get_cluster_id() )
+        data[j].set_cluster_id( temp )
+                
+    def reallocate_nodes(self, data):
+        # Random i value, non-hub
+        possible_indexes = [i for i in range(len(data)) if data[i].get_id() not in [hub.get_id() for hub in self.cluster_hubs]]
+        
+        i = random.choice(possible_indexes)
         
 
 if __name__ == '__main__':
