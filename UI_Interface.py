@@ -25,6 +25,13 @@ from Get_Data_Dialog import Get_Data_Dialog
 
 # Define the decorator
 def progress_bar_decorator(time_delay):
+    """
+    @brief Decorator to add a progress bar to the status bar.
+    @param time_delay The delay for the progress bar.
+    @return The wrapper function.
+    @details This decorator adds a progress bar to the status bar and updates it based on the time delay.
+    """
+
     def decorator(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
@@ -51,7 +58,17 @@ def progress_bar_decorator(time_delay):
 
 # Clustering_Operations requires Point_Matrix class from Data.py from init
 class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
+    """
+    @brief Main user interface class for clustering and heuristic operations.
+    @details This class handles the UI interactions, connects buttons to functions, 
+             and manages history elements for the solutions.
+    """
+    
     def __init__(self, template_path):
+        """
+        @brief Constructor to initialize the UI interface.
+        @param template_path Path to the UI template file.
+        """
         super(UI_Interface, self).__init__( data = None )
 
         uic.loadUi(template_path, self)
@@ -72,6 +89,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     ###################### UI Operations ######################
 
     def init_ui(self):
+        """
+        @brief Initializes the UI components and connects buttons to functions.
+        """
         # Hide the full menu widget
         self.full_menu_widget.setVisible(False)
 
@@ -102,6 +122,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     # Get buttons from the UI
     def get_buttons(self):
+        """
+        @brief Retrieves all buttons from the UI.
+        @return List of buttons (QPushButton and QMenu objects).
+        """
         # Temporary buttons array
         buttons = []
 
@@ -122,6 +146,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         """
         @brief Changes the enabled state of buttons.
         @param state The state to set the buttons to. Can be "full", "source_opened" or "default".
+        @param visible Boolean indicating whether the buttons should be visible or not.
         """
 
         if state == "source_opened":
@@ -148,6 +173,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     ###################### Manual Operations ######################
 
     def manual_run_clicked(self):
+        """
+        @brief Executes the manual clustering operation based on user input.
+        """
         # QTextEdit 
         hubs = self.manual_hubs.toPlainText()
         nodes = self.manual_nodes.toPlainText()
@@ -184,6 +212,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     # Display functions
     @progress_bar_decorator(0.4)
     def plot_initial_solution(self):
+        """
+        @brief Plots the initial solution on the monitor.
+        """
         
         # get plot
         initial_solution_data = self.get_data()
@@ -208,6 +239,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     # Plot final solution
     @progress_bar_decorator(0.4)
     def plot_final_solution(self):
+        """
+        @brief Plots the final solution on the monitor.
+        @return False if there is no cluster information to display, otherwise True.
+        """
         
         # Get label size
         label_size = self.monitor_final_solution.width(), self.monitor_final_solution.height()
@@ -248,15 +283,28 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     # Clear functions
     def clear_final_solution(self):
+        """
+        @brief Clears the final solution display.
+        """
         self.monitor_final_solution.clear()
         self.change_buttons_state("source_opened", False)
 
     def clear_initial_solution(self):
+        """
+        @brief Clears both initial and final solution displays.
+        """
         self.monitor_initial_solution.clear()
         self.monitor_final_solution.clear()
         self.change_buttons_state("default", True)
 
     def update_history(self, pixmap, history, index):
+        """
+        @brief Updates the history of solution images.
+        @param pixmap The pixmap to add to history.
+        @param history The history list to update.
+        @param index The current index in the history.
+        """
+
         if index == 0:
             history.insert(0, pixmap)
         else:
@@ -266,6 +314,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     # Cluster information print
     def print_cluster_information(self, ret=None):
+        """
+        @brief Prints detailed cluster information to the results panel.
+        @param ret Optional parameter to include additional information in the output.
+        """
 
         # Gather information
         cluster_centers_label = self.calculate_cluster_centers()
@@ -304,21 +356,35 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     # Panel functions                                                                                
 
     def add_data_infromation_panel(self, data):
+        """
+        @brief Adds text to the information panel.
+        @param text The text to add to the information panel.
+        """
         old_text = self.monitor_information_panel.toPlainText()
         self.monitor_information_panel.setText(
             old_text + data
         )
 
     def add_data_results_panel(self, data):
+        """
+        @brief Adds text to the results panel.
+        @param text The text to add to the results panel.
+        """
         old_text = self.monitor_results.toPlainText()
         self.monitor_results.setText(
             old_text + "\n" + data
         )
     
     def clear_data_results_panel(self):
+        """
+        @brief Clears the results panel.
+        """
         self.monitor_results.clear()
 
     def clear_data_information_panel(self):
+        """
+        @brief Clears the information panel.
+        """
         self.monitor_information_panel.clear()
 
 
@@ -327,6 +393,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     ###################### Clustering Operations ######################
 
     def clustering_button_clicked(self):
+        """
+        @brief Handles the event when a clustering-related button is clicked.
+        """
+
         # Get the sender
         sender = self.sender()
 
@@ -459,6 +529,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     ###################### Heuristics Operations ######################
 
     def heuristics_button_clicked(self):
+        """
+        @brief Handles the event when a heuristics-related button is clicked.
+        """
+
         sender_name = self.sender().text().replace("menu_", "")
 
         # Clear the information and results panels before the operation
@@ -527,7 +601,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     ###################### Side Bar ##############################
     
     def sidebar_button_clicked(self):
-        
+        """
+        @brief Handles the event when a sidebar button is clicked.
+        """
+
         # Get the sender
         sender = self.sender()
 
@@ -542,6 +619,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.hold_sender = sender
 
     def init_side_buttons(self):
+        """
+        @brief Initializes the sidebar buttons.
+        """
+
         buttons = [
             # Initial Solution
             { 'name': 'Save As', 'object_name': 'initial_save_as', 'function': self.initial_solution_button_clicked },
@@ -583,6 +664,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 menu_button.triggered.connect(button.click)
 
     def change_side_buttons_visibility(self, sender):
+        """
+        @brief Changes the visibility of sidebar buttons based on the sender.
+        @param sender: The sender object triggering the method.
+        """
         
         # Hide all buttons of self.toolbox_layout
         for i in range(self.toolbox_layout.count()):
@@ -609,6 +694,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
 
     def load_data_button(self):
+        """
+        @brief Loads the data when the 'Open Data' button is clicked.
+        """
         data_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', "data.txt", "Data files (*.txt)")[0]
         if data_path:
             self.load_data(data_path)
@@ -616,6 +704,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.change_buttons_state("source_opened", False)
 
     def initial_solution_button_clicked(self):
+        """
+        @brief Handles events when buttons related to the initial solution are clicked.
+        """
         sender_name = self.sender().text().replace("menu_", "")
         
         # Save to selected path
@@ -651,6 +742,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             
 
     def final_solution_button_clicked(self):
+        """
+        @brief Handles events when buttons related to the final solution are clicked.
+        """
+
         sender_name = self.sender().text().replace("menu_", "")
 
         # Save to selected path
@@ -717,9 +812,18 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     ###################### Other Operations #####################
 
     def exit_app(self):
+        """
+        @brief Exits the application.
+        """
         sys.exit()
 
     def plot_to_pixmap(self, fig, label_size):
+        """
+        @brief Converts a matplotlib figure to a QPixmap.
+        @param fig: The matplotlib figure to be converted.
+        @param label_size: The size of the label for the conversion.
+        @return QPixmap: The converted QPixmap.
+        """
         fig.canvas.draw()
         img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
         img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
@@ -728,6 +832,11 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         return self.cv2_to_pixmap(img)
 
     def cv2_to_pixmap(self, img):
+        """
+        @brief Converts an OpenCV image to a QPixmap.
+        @param img: The OpenCV image to be converted.
+        @return QPixmap: The converted QPixmap.
+        """
         height, width, channel = img.shape
         bytesPerLine = 3 * width
         qImg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
@@ -735,6 +844,11 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     
     # Figure initialization
     def init_figure(self):
+        """
+        @brief Initializes a matplotlib figure.
+        @return fig: The initialized matplotlib figure.
+        @return ax: The axis object associated with the figure.
+        """
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.set_xlabel('X Label')
@@ -743,7 +857,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
 
 if __name__ == '__main__':
-
     app = QtWidgets.QApplication(sys.argv)
     window = UI_Interface(template_path='Interface.ui')
     sys.exit(app.exec_())
