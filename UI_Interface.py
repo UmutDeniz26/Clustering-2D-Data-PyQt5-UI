@@ -172,6 +172,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         # Append to initial solution image history
         self.update_history(pixmap, self.initial_solution_png_hist, self.initial_solution_hist_index)
 
+    # Figure initialization
     def init_figure(self):
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -179,7 +180,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         ax.set_ylabel('Y Label')
         return fig, ax
 
-
+    # Plot final solution
     def plot_final_solution(self):
         
         self.progress_bar(0.4)
@@ -221,6 +222,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         # Button state change
         self.change_buttons_state("full", False)
 
+    # Clear functions
     def clear_final_solution(self):
         self.monitor_final_solution.clear()
         self.change_buttons_state("source_opened", False)
@@ -238,6 +240,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             history.insert(0, pixmap)
             index = 0
 
+    # Cluster information print
     def print_cluster_information(self, ret=None):
 
         # Gather information
@@ -272,9 +275,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
             self.add_data_infromation_panel("\n\nParameters:\n" + str_dict)
 
-        ##############################################################
+    ##############################################################
 
-        # Information panel functions                                                                                
+    # Panel functions                                                                                
 
     def add_data_infromation_panel(self, data):
         old_text = self.monitor_information_panel.toPlainText()
