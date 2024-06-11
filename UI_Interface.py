@@ -12,6 +12,8 @@ import time
 import sys
 import cv2
 
+# Decorator
+from functools import wraps
 
 # Partition Operations
 from Clustering_Operations import Clustering_Operations
@@ -19,6 +21,33 @@ from Heuristic_Operatipns import Heuristic_Operations
 
 # Get_Data_Dialog
 from Get_Data_Dialog import Get_Data_Dialog
+
+
+# Define the decorator
+def progress_bar_decorator(time_delay):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            # Temporary progress bar generation
+            layout = QtWidgets.QVBoxLayout()
+            progress_bar = QtWidgets.QProgressBar()
+            progress_bar.setRange(0, 100)
+            progress_bar.setFixedHeight(15)
+            layout.addWidget(progress_bar)
+            
+            # Add progress bar to the status bar
+            self.statusBar().addPermanentWidget(progress_bar)
+            
+            for i in range(101):
+                time.sleep(time_delay / 100)
+                progress_bar.setValue(i)
+            self.statusBar().removeWidget(progress_bar)
+            
+            
+            return func(self, *args, **kwargs)
+        return wrapper
+    return decorator
+
 
 # Clustering_Operations requires Point_Matrix class from Data.py from init
 class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
@@ -149,9 +178,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
 
     # Display functions
+    @progress_bar_decorator(0.4)
     def plot_initial_solution(self):
-
-        self.progress_bar(0.4)
+        
 
         # get plot
         initial_solution_data = self.get_data()
@@ -181,10 +210,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         return fig, ax
 
     # Plot final solution
+    @progress_bar_decorator(0.4)
     def plot_final_solution(self):
         
-        self.progress_bar(0.4)
-
         # Get label size
         label_size = self.monitor_final_solution.width(), self.monitor_final_solution.height()
         
@@ -296,25 +324,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     def clear_data_information_panel(self):
         self.monitor_information_panel.clear()
-
-
-    # For UX purposes    
-    def progress_bar(self, time_delay):
-
-        # Temporary progress bar generation
-        layout = QtWidgets.QVBoxLayout()
-        progress_bar = QtWidgets.QProgressBar()
-        progress_bar.setRange(0, 100)
-        progress_bar.setFixedHeight(15)
-
-        layout.addWidget(progress_bar)
-
-        # Start the progress bar
-        self.statusBar().addPermanentWidget(progress_bar)
-        for i in range(101):
-            time.sleep( time_delay / 100 )
-            progress_bar.setValue(i)
-        self.statusBar().removeWidget(progress_bar)
 
 
     ###################################################################
