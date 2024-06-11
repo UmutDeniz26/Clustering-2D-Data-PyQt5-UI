@@ -162,13 +162,17 @@ class Heuristic_Operations(Point_Matrix):
     
         return temp_hubs    
     
-    def swap_nodes(self, data):
+    def swap_nodes(self, data, from_id = None, to_id = None ):
         # Random i and j values, non-hub
         possible_indexes = [i for i in range(len(data)) if data[i].get_id() not in [hub.get_id() for hub in self.cluster_hubs]]
         
         # Random i and j values
         i = random.choice(possible_indexes)
         j = random.choice(possible_indexes)
+
+        if from_id != None and to_id != None:
+            i = from_id
+            j = to_id
 
         # Swap the nodes
         temp = data[i].get_cluster_id()

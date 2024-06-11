@@ -157,15 +157,24 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.clear_data_results_panel()
 
         # Get the arguments for the clustering operation
-        hubs = [ int(hub) for hub in hubs.split(" ") ]
+        if centers != '':
+            centers = [ int(center) for center in nodes.split(" ") ]
 
-        # Progress bar for the clustering operation
-        self.constant_cluster_hubs_calculation(hubs)
+            self.swap_nodes(self.get_data(), from_id = centers[0], to_id = centers[1] )
+
+            self.assign_new_clusters(self.cluster_hubs)
+
+        if hubs != '':
+            hubs = [ int(hub) for hub in hubs.split(" ") ]
+        
+            # Progress bar for the clustering operation
+            self.constant_cluster_hubs_calculation(hubs)
 
         # Print the results and plot the final solution
         if self.plot_final_solution() == False:
             self.add_data_infromation_panel("There is no cluster information to display.")
             return
+
         
         self.print_cluster_information()
 
@@ -174,6 +183,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         self.update_history(self.manual_hubs.toPlainText(), self.hubs_hist, self.hubs_hist_index)
         self.update_history(self.manual_nodes.toPlainText(), self.nodes_hist, self.nodes_hist_index)
+
+
     
     ##############################################################
 
