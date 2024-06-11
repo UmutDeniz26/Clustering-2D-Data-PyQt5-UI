@@ -79,8 +79,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.final_solution_png_hist = []; self.final_solution_hist_index = 0
         self.information_panel_hist = []; self.information_panel_hist_index = 0
         self.results_panel_hist = []; self.results_panel_hist_index = 0
-        self.hubs_hist = []; self.hubs_hist_index = 0
         self.nodes_hist = []; self.nodes_hist_index = 0
+        self.hubs_hist = []; self.hubs_hist_index = 0
 
         # Initialize the UI
         self.init_ui()
