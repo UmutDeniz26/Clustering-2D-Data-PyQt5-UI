@@ -1,6 +1,6 @@
-### CLUSTERING POINTS WITH PyQtUI
+# CLUSTERING POINTS WITH PyQtUI
 ## CLASS STRUCTURE
-# UI_INTERFACE
+### UI_INTERFACE
   Heuristic Operations
   Clustering Operations
 
