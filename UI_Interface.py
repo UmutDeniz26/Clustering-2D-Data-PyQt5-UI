@@ -130,9 +130,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         # Progress bar for the clustering operation
         self.constant_cluster_hubs_calculation(hubs)
 
-        # Progress bar for the clustering operation
-        self.progress_bar(0.4)
-
         # Print the results and plot the final solution
         if self.plot_final_solution() == False:
             self.add_data_infromation_panel("There is no cluster information to display.")
@@ -153,6 +150,9 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     # Display functions
     def plot_initial_solution(self):
+
+        self.progress_bar(0.4)
+
         # get plot
         initial_solution_data = self.get_data()
         label_size = self.monitor_initial_solution.width(), self.monitor_initial_solution.height()
@@ -182,6 +182,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     def plot_final_solution(self):
         
+        self.progress_bar(0.4)
+
         # Get label size
         label_size = self.monitor_final_solution.width(), self.monitor_final_solution.height()
         
@@ -410,8 +412,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         elif sender_name == 'DBSCAN':
             dialog = Get_Data_Dialog(
-                ["Epsilon: ", "Min samples: ", "Metric: "],
-                ["0.5", "5", ""]
+                ["Epsilon: ", "Min samples: ", ["Metric: ", "euclidean", "manhattan", "chebyshev", "minkowski"],"N_Clusters(Used for auto mode): "],
+                ["0.5", "5", "", "3"]
             )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -423,9 +425,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 }
             else:
                 return
-
-        # Progress bar for the clustering operation
-        self.progress_bar(0.4)
 
         # Run the clustering operation
         ret = self.method_handler_clustering(sender_name, args_dict)
@@ -494,9 +493,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             else:
                 return
 
-
-        # Progress bar for the clustering operation
-        self.progress_bar(0.4)
 
         # Run the clustering operation
         ret = self.method_handler_heuristics(sender_name, args_dict)
