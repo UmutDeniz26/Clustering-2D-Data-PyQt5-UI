@@ -151,4 +151,5 @@ if __name__ == '__main__':
     print(clustering.calculate_distances_from_center())
     # all possible pairs
     print([ (x.get_id(), y.get_id()) for x, y in clustering.calculate_all_possible_pairs()])
+    print(clustering.calculate_pair_objectives())
     #print(clustering.calculate_pair_objectives())

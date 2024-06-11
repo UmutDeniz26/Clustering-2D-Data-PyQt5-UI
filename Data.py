@@ -178,18 +178,12 @@ class Point_Matrix:
 
         # Calculate pair objectives
         for pair in all_pairs:
-            # Get cluster nodes
+            # Get non-hub cluster nodes
             cluster_i, cluster_j = pair
-            cluster_i_points = [point for point in self.get_data() if point.get_cluster_id() == cluster_i.get_cluster_id()]
-            cluster_j_points = [point for point in self.get_data() if point.get_cluster_id() == cluster_j.get_cluster_id()]
 
-            # Get distances
-            distances_i = [np.linalg.norm(np.array(point.get_coordinates()) - np.array(cluster_i.get_coordinates())) for point in cluster_i_points]
-            distances_j = [np.linalg.norm(np.array(point.get_coordinates()) - np.array(cluster_j.get_coordinates())) for point in cluster_j_points]
+            distances_from_centers = self.calculate_distances_from_center()
 
-            # Get maximum distances
-            dihi = max(distances_i)
-            djhj = max(distances_j)
+            dihi, djhj = distances_from_centers[cluster_i.get_id()], distances_from_centers[cluster_j.get_id()]
 
             # Get distance between hubs
             dhihj = np.linalg.norm(np.array(cluster_i.get_coordinates()) - np.array(cluster_j.get_coordinates()))
