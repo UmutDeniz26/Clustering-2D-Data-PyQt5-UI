@@ -35,33 +35,35 @@ class Heuristic_Operations(Point_Matrix):
         # Initialize cluster hubs and get initial solution value
         self.cluster_hubs = self.init_cluster_hubs( n_clusters )
         self.assign_new_clusters(self.cluster_hubs)
-        objective_score = self.objective_function( self.get_data(), self.cluster_hubs)
+        objective_score = self.objective_function( self.get_data(), self.cluster_hubs )
 
         no_change_count = 0
 
         for i in range(max_iterations):
             # Assign new clusters
             temp_cluster_hubs = self.relocate_cluster_hubs()
-            self.assign_new_clusters(self.cluster_hubs)
+            self.assign_new_clusters(temp_cluster_hubs)
 
             self.swap_nodes(self.get_data()) if random.random() < swap_nodes_chance else None
             self.reallocate_node(self.get_data()) if random.random() < reallocate_node_chance else None
 
-            if self.objective_function( self.get_data(), temp_cluster_hubs) < objective_score:
-                # Update the cluster hubs and the objective score
+            # Calculate the new objective score
+            new_objective_score = self.objective_function(self.get_data(), temp_cluster_hubs)
+
+            # If the new solution is better, update the current solution
+            if new_objective_score < objective_score:
+                objective_score = new_objective_score
                 self.cluster_hubs = temp_cluster_hubs
-                objective_score = self.objective_function( self.get_data(), self.cluster_hubs)
-                
                 no_change_count = 0
             else:
                 no_change_count += 1
-                
+
             if no_change_count > 100:
                 break
 
         self.assign_new_clusters(self.cluster_hubs)
 
-        return {"cluster_hubs": [hub.get_id() for hub in self.cluster_hubs], "value": self.objective_function( self.get_data(), self.cluster_hubs)}
+        return {"Cluster Hubs": [hub.get_id() for hub in self.cluster_hubs], "Best Objective Score": objective_score}
 
     def simulated_annealing(self, max_iterations=1000, initial_temperature=100.0, cooling_rate=0.99, n_clusters=3, swap_nodes_chance=0.1, reallocate_node_chance=0.1):
         # Get data
@@ -110,7 +112,7 @@ class Heuristic_Operations(Point_Matrix):
         self.assign_new_clusters(best_cluster_hubs)
         self.cluster_hubs = best_cluster_hubs
 
-        return {"cluster_hubs": [hub.get_id() for hub in best_cluster_hubs], "value": best_objective_score}
+        return {"Cluster Hubs": [hub.get_id() for hub in best_cluster_hubs], "Best Objective Score": best_objective_score}
 
     # Manually hub selection
     def constant_cluster_hubs_calculation(self, cluster_hubs):

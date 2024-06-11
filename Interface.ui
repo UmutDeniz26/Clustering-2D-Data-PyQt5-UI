@@ -526,6 +526,9 @@
    <property name="text">
     <string>Open Data</string>
    </property>
+   <property name="shortcut">
+    <string>Shift+O</string>
+   </property>
   </action>
   <action name="menu_initial_save">
    <property name="text">
@@ -540,6 +543,9 @@
   <action name="exit_menu">
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
    </property>
   </action>
   <action name="menu_initial_export_as">
