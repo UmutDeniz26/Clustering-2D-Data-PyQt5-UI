@@ -1,3 +1,4 @@
+import numpy as np
 
 # Class to represent a point in 3D space
 ID = 0
@@ -39,28 +40,9 @@ class Point_Matrix:
         self.set_data(data)
         self.set_cluster_vector([])
         
-        self.data_history = []
-        self.history_index = 0
-    
-    def append_data_history(self, data):
-
-        self.data_history.append(data)
-        self.history_index += 1
-
-    def undo(self):
-        if self.history_index > 0:
-            self.history_index -= 1
-            self.set_data(self.data_history[self.history_index])
-
-        
-    def redo(self):
-        if self.history_index < len(self.data_history) - 1:
-            self.history_index += 1
-            self.set_data(self.data_history[self.history_index])
-
+    ######################### FILE OPERATIONS #########################
 
     def load_data(self, filename=None):
-
         # Set filename if provided
         if filename is not None:
             self.set_filename(filename)
@@ -87,12 +69,13 @@ class Point_Matrix:
         except FileNotFoundError:
             print("File not found.")
 
-
     def set_filename(self, filename):
         self.filename = filename
 
     def get_filename(self):
         return self.filename
+            
+    ######################### CLUSTER OPERATIONS #########################
     
     def set_cluster_vector(self, cluster_vector):
         for i, cluster_id in enumerate(cluster_vector):
@@ -100,13 +83,6 @@ class Point_Matrix:
 
     def get_cluster_vector(self):
         return [point.get_cluster_id() for point in self.get_data()]
-    
-    def set_result(self, result):
-        self.result = result
-
-    def get_result(self):
-        return self.result
-    
 
     # Function to get cluster items
     def get_cluster_items(self):
@@ -122,7 +98,114 @@ class Point_Matrix:
                     cluster_items[i].append(point)
                     
         return cluster_items
+
+    # Return the number of clusters
+    def get_cluster_count(self):
+        return max(self.get_cluster_vector()) + 1
+
+    # Function to get center nodes
+    def calculate_center_nodes(self):        
+        # Minimum distance between a point and a cluster, will be the center of the cluster
+        cluster_centers = self.calculate_cluster_centers()
+        self.center_nodes = []
+        
+        # Get center nodes
+        for i in range(self.get_cluster_count()):
+            # Get points in cluster i
+            temp = []
+            for point in self.get_data():
+                if point.get_cluster_id() == i:
+                    distance = np.linalg.norm(point.get_coordinates() - cluster_centers[i])
+                    temp.append((point, distance))
+            
+            temp.sort(key = lambda x: x[1])
+            
+            center_node = temp[0][0]
+            self.center_nodes.append(center_node)
+
+        return self.center_nodes
+
+    # Return the center nodes
+    def calculate_distances_from_center(self):
+        # Get data
+        centers = self.calculate_cluster_centers()
+        center_nodes = self.calculate_center_nodes()
+
+        # Initialize distances_from_center
+        distances_from_center = {} # {point_id: distance, point_id: distance, ...}
+
+        # Calculate distances from center
+        for i, center_node in enumerate(center_nodes):
+            center = centers[i]
+            distance = np.linalg.norm(center_node.get_coordinates() - center)
+            distances_from_center.update({center_node.get_id(): distance})
+
+        return distances_from_center
+
+
+    # Function to calculate cluster centers for other methods
+    def calculate_cluster_centers(self):
+        unique_labels = np.unique(self.get_cluster_vector())
+        data_points = np.array(self.get_data_as_list())
+        centers = np.array([data_points[self.get_cluster_vector() == label].mean(axis=0) for label in unique_labels])
+        return centers
     
+    # Return the all possible pairs
+    def calculate_all_possible_pairs(self):
+        cluster_nodes = self.calculate_center_nodes()
+
+        # Initialize all_possible_pairs
+        all_possible_pairs = []
+        for i in range(len(cluster_nodes)):
+            for j in range(i + 1, len(cluster_nodes)):
+                if i != j and (cluster_nodes[i], cluster_nodes[j]) not in all_possible_pairs:
+                    all_possible_pairs.append((cluster_nodes[i], cluster_nodes[j]))
+
+
+        return all_possible_pairs
+
+    # Function to calculate the objective function for each pair
+    def calculate_pair_objectives(self):
+        # Then, for each pair calculate the following objective 
+        # function:
+        # OBJij = Dihi + 0.75 * Dhihj + Djhj
+    
+        # Get data
+        all_pairs = self.calculate_all_possible_pairs()
+
+        # Initialize pair_objectives
+        pair_objectives = {} # {(point_id, point_id): objective, (point_id, point_id): objective, ...}
+
+        # Calculate pair objectives
+        for pair in all_pairs:
+            # Get cluster nodes
+            cluster_i, cluster_j = pair
+            cluster_i_points = [point for point in self.get_data() if point.get_cluster_id() == cluster_i.get_cluster_id()]
+            cluster_j_points = [point for point in self.get_data() if point.get_cluster_id() == cluster_j.get_cluster_id()]
+
+            # Get distances
+            distances_i = [np.linalg.norm(np.array(point.get_coordinates()) - np.array(cluster_i.get_coordinates())) for point in cluster_i_points]
+            distances_j = [np.linalg.norm(np.array(point.get_coordinates()) - np.array(cluster_j.get_coordinates())) for point in cluster_j_points]
+
+            # Get maximum distances
+            dihi = max(distances_i)
+            djhj = max(distances_j)
+
+            # Get distance between hubs
+            dhihj = np.linalg.norm(np.array(cluster_i.get_coordinates()) - np.array(cluster_j.get_coordinates()))
+
+            # Calculate objective
+            objective = dihi + 0.75 * dhihj + djhj
+
+            # Update pair_objectives
+            pair_objectives.update({(cluster_i.get_id(), cluster_j.get_id()): objective})
+    
+        return pair_objectives, max(pair_objectives.values())
+
+
+
+
+    ######################### DATA OPERATIONS #########################
 
     def set_data(self, data):
         if isinstance(data, list):
@@ -150,10 +233,6 @@ class Point_Matrix:
 
     def clear_data(self):
         self.data = []
-
-    def print_data(self):
-        for point in self.get_data():
-            print(point)
 
     def save_data(self, solution=None, filename=None):
         

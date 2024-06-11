@@ -214,7 +214,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         # Get output data
         try:
             cluster_centers = self.calculate_cluster_centers()
-            center_nodes = [ point.get_coordinates() for point in self.get_center_nodes() ]
+            center_nodes = [ point.get_coordinates() for point in self.calculate_center_nodes() ]
         except:
             return False
 
@@ -281,7 +281,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
             self.add_data_results_panel("\nCluster " + str(cluster_id) + " items: " + 
                 str( [ item.get_id() for item in cluster_items ] ))
             
-        self.add_data_results_panel("\n\nCluster Center Nodes: " + str([ point.get_id() for point in self.get_center_nodes() ]))
+        self.add_data_results_panel("\n\nCluster Center Nodes: " + str([ point.get_id() for point in self.calculate_center_nodes() ]))
 
         self.add_data_results_panel("\n\nFarthest Hub Distances: \n" + str(self.calculate_distances_from_center()))
         self.add_data_results_panel("\n\nAll Possible Pairs: \n" + str([ (point_tuple[0].get_id(), point_tuple[1].get_id())

@@ -20,14 +20,7 @@ class Heuristic_Operations(Point_Matrix):
         else:
             print("Method not found.")
 
-    def objective_function(self, data, cluster_hubs):
-        # Calculate the sum of the distances from each point to the nearest cluster hub
-        total_distance = 0
-        for point in data:
-            its_hub = cluster_hubs[point.get_cluster_id()]
-            total_distance += np.linalg.norm(np.array(point.get_coordinates()) - np.array(its_hub.get_coordinates()), axis=0)
-        return total_distance
-
+    ############################# HEURISTIC METHODS #############################
 
     def hill_climbing(self, max_iterations=1000, n_clusters=3, swap_nodes_chance=0.1, reallocate_node_chance=0.1):
         # Get data
@@ -127,6 +120,15 @@ class Heuristic_Operations(Point_Matrix):
         # Calculate the objective score
         return self.objective_function(data, cluster_hubs)
 
+    ############################# HEURISTIC AUXILIARY METHODS #############################
+
+    def objective_function(self, data, cluster_hubs):
+        # Calculate the sum of the distances from each point to the nearest cluster hub
+        total_distance = 0
+        for point in data:
+            its_hub = cluster_hubs[point.get_cluster_id()]
+            total_distance += np.linalg.norm(np.array(point.get_coordinates()) - np.array(its_hub.get_coordinates()), axis=0)
+        return total_distance
 
     # Initialize cluster hubs
     def init_cluster_hubs(self, n_hubs=3):
@@ -146,7 +148,9 @@ class Heuristic_Operations(Point_Matrix):
         for point in self.get_data():
             point.set_cluster_id(self.optimal_cluster(point, cluster_hubs))
         
-    
+
+    ############################# HEURISTIC Random Operations #############################
+
     # Relocate cluster hubs randomly
     def relocate_cluster_hubs(self):
         # Get data
@@ -185,9 +189,13 @@ class Heuristic_Operations(Point_Matrix):
         data[i].set_cluster_id(j)
 
 
+#Test
 if __name__ == '__main__':
     pcd = Point_Matrix("src/points.txt")
     pcd.load_data()
 
     heuristic_ops = Heuristic_Operations(pcd)
-    heuristic_ops.method_handler_heuristics('Hill Climbing')
+    heuristic_ops.method_handler_heuristics('Hill Climbing', {'max_iterations': 1000, 'n_clusters': 3, 'swap_nodes_chance': 0.1, 'reallocate_node_chance': 0.1})
+
+    print(heuristic_ops.get_cluster_vector())
+    print(heuristic_ops.calculate_distances_from_center())
