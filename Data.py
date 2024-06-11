@@ -166,11 +166,8 @@ class Point_Matrix:
 
     # Function to calculate the objective function for each pair
     def calculate_pair_objectives(self):
-        # Then, for each pair calculate the following objective 
-        # function:
-        # OBJij = Dihi + 0.75 * Dhihj + Djhj
     
-        # Get data
+        # Get pairs
         all_pairs = self.calculate_all_possible_pairs()
 
         # Initialize pair_objectives
@@ -181,8 +178,8 @@ class Point_Matrix:
             # Get non-hub cluster nodes
             cluster_i, cluster_j = pair
 
+            # Get distances from centers
             distances_from_centers = self.calculate_distances_from_center()
-
             dihi, djhj = distances_from_centers[cluster_i.get_id()], distances_from_centers[cluster_j.get_id()]
 
             # Get distance between hubs
@@ -195,7 +192,6 @@ class Point_Matrix:
             pair_objectives.update({(cluster_i.get_id(), cluster_j.get_id()): objective})
     
         return pair_objectives, max(pair_objectives.values())
-
 
 
 
