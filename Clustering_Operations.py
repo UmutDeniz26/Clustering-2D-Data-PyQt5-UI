@@ -160,7 +160,7 @@ class Clustering_Operations( Point_Matrix ):
         @param min_samples: int
         @param metric: str
         """
-        
+
         # Get data
         data = np.array(self.get_data_as_list())
         
