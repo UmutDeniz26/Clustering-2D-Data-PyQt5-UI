@@ -77,12 +77,18 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         # Connect buttons to functions
         self.open_data.clicked.connect(self.load_data_button)
+        self.menu_open_data.triggered.connect(self.open_data.click)
+        
+        # Connect the manual run button to the function
         self.manual_run.clicked.connect(self.manual_run_clicked)
+
+        # Connect the menu buttons to the functions
         self.menu_clear_initial_solution.triggered.connect(self.clear_initial_solution)
         self.menu_clear_final_solution.triggered.connect(self.clear_final_solution)
-        self.menu_open_data.triggered.connect(self.load_data_button)
-        self.exit_menu.triggered.connect(self.exit_app)
+        
+        # Connect the exit buttons to the function
         self.exit_button.clicked.connect(self.exit_app)
+        self.exit_menu.triggered.connect(self.exit_button.click)
 
         # Initialize side menu buttons
         self.init_side_buttons()
@@ -91,12 +97,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.side_menu_buttons = [ self.initial_solution_side, self.final_solution_side, self.clustering_side, self.heuristics_side ]
         [ button.clicked.connect(self.sidebar_button_clicked) for button in self.side_menu_buttons ]
 
-        # Always display buttons
-        self.always_display_buttons = [self.open_data, self.exit_button, self.menu_open_data, self.exit_menu, self.menu_file, self.manual_run]
-
         # Initialize the data
         self.change_buttons_state("default", True)
 
+    # Get buttons from the UI
     def get_buttons(self):
         # Temporary buttons array
         buttons = []
@@ -143,7 +147,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     ###################### Manual Operations ######################
 
-
     def manual_run_clicked(self):
         # QTextEdit 
         hubs = self.manual_hubs.toPlainText()
@@ -181,7 +184,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
     @progress_bar_decorator(0.4)
     def plot_initial_solution(self):
         
-
         # get plot
         initial_solution_data = self.get_data()
         label_size = self.monitor_initial_solution.width(), self.monitor_initial_solution.height()
@@ -201,13 +203,6 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         # Append to initial solution image history
         self.update_history(pixmap, self.initial_solution_png_hist, self.initial_solution_hist_index)
 
-    # Figure initialization
-    def init_figure(self):
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.set_xlabel('X Label')
-        ax.set_ylabel('Y Label')
-        return fig, ax
 
     # Plot final solution
     @progress_bar_decorator(0.4)
@@ -225,7 +220,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         # Generate 2D Plot 
         fig, ax = self.init_figure()
-        color_list = [ 'red', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta' ]
+        color_list = [ 'red', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'magenta', 'brown', 'gray' ]
         
         for point in self.get_data():
             if point.get_coordinates() in center_nodes:
@@ -392,13 +387,13 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         elif sender_name == 'Spectral Clustering':
             dialog = Get_Data_Dialog(
                 ["Number of clusters: ", ["Assign labels: ", "kmeans", "discretize"], ["Eigen solver: ", "arpack", "lobpcg", "amg"], "Random state: "],
-                ["8", "", "", "None"] 
+                ["3", "", "", "None"] 
             )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
                 
                 args_dict = { 
-                    "n_clusters": int(data[0]) if data[0] != '' else 8, # Default value is 8
+                    "n_clusters": int(data[0]) if data[0] != '' else 3, # Default value is 3
                     "assign_labels": data[1],
                     "eigen_solver": data[2],
                     "random_state": int(data[3]) if data[3] != '' else None, # Default value is None
@@ -718,7 +713,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
     ##############################################################
 
-    ###################### Common Operations #####################
+    ###################### Other Operations #####################
 
     def exit_app(self):
         sys.exit()
@@ -736,6 +731,14 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         bytesPerLine = 3 * width
         qImg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
         return QPixmap(qImg)
+    
+    # Figure initialization
+    def init_figure(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        return fig, ax
 
 
 if __name__ == '__main__':
