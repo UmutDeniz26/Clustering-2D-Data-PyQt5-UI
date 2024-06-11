@@ -4,12 +4,13 @@ from PyQt5 import QtWidgets, QtGui
 
 
 class Get_Data_Dialog(QtWidgets.QDialog):
-    def __init__(self, questions = ["Default question:"]):
+    def __init__(self, questions = ["Default question:"], placeholders = [""]):
         super(Get_Data_Dialog, self).__init__()
         self.setWindowTitle("Get Data Dialog")
         self.setGeometry(100, 100, len(questions)*200, 100)
         
         self.questions = questions
+        self.placeholders = placeholders
         self.labels = []
         self.inputs = []
         self.init_ui()
@@ -18,7 +19,7 @@ class Get_Data_Dialog(QtWidgets.QDialog):
     def init_ui(self):
         self.layout = QtWidgets.QVBoxLayout()
 
-        for question in self.questions:
+        for i,question in enumerate(self.questions):
             
             if isinstance(question, list):
                 # ComboBox after 0th element
@@ -37,6 +38,9 @@ class Get_Data_Dialog(QtWidgets.QDialog):
                 self.layout.addWidget(label)
 
                 textbox = QtWidgets.QLineEdit()
+                
+                textbox.setPlaceholderText( self.placeholders[i] ) if self.placeholders[i] != "" else None
+
                 self.inputs.append(textbox)
                 self.layout.addWidget(textbox)
 

@@ -9,9 +9,9 @@ class Heuristic_Operations(Point_Matrix):
 
     def method_handler_heuristics(self, method_name, arg_dict):
         if method_name == 'Hill Climbing':
-            return self.hill_climbing(arg_dict['max_iterations'])
+            return self.hill_climbing(arg_dict['max_iterations'], arg_dict['n_clusters'])
         elif method_name == 'Simulated Annealing':
-            return self.simulated_annealing(arg_dict['max_iterations'], arg_dict['initial_temperature'], arg_dict['cooling_rate'])
+            return self.simulated_annealing(arg_dict['max_iterations'], arg_dict['initial_temperature'], arg_dict['cooling_rate'], arg_dict['n_clusters'])
         else:
             print("Method not found.")
 
@@ -24,11 +24,12 @@ class Heuristic_Operations(Point_Matrix):
         return total_distance
 
 
-    def hill_climbing(self, max_iterations=1000):
+    def hill_climbing(self, max_iterations=1000, n_clusters=3):
         # Get data
 
         # Initialize cluster hubs and get initial solution value
-        self.cluster_hubs = self.init_cluster_hubs();self.assign_new_clusters(self.cluster_hubs)
+        self.cluster_hubs = self.init_cluster_hubs( n_clusters )
+        self.assign_new_clusters(self.cluster_hubs)
         objective_score = self.objective_function( self.get_data(), self.cluster_hubs)
 
         no_change_count = 0
@@ -57,11 +58,12 @@ class Heuristic_Operations(Point_Matrix):
 
         return {"cluster_hubs": [hub.get_id() for hub in self.cluster_hubs], "value": self.objective_function( self.get_data(), self.cluster_hubs)}
 
-    def simulated_annealing(self, max_iterations=1000, initial_temperature=100.0, cooling_rate=0.99):
+    def simulated_annealing(self, max_iterations=1000, initial_temperature=100.0, cooling_rate=0.99, n_clusters=3):
         # Get data
         data = self.get_data()
         # Initialize cluster hubs and get initial solution value
-        self.cluster_hubs = self.init_cluster_hubs();self.assign_new_clusters(self.cluster_hubs)
+        self.cluster_hubs = self.init_cluster_hubs( n_clusters )
+        self.assign_new_clusters(self.cluster_hubs)
         objective_score = self.objective_function(data, self.cluster_hubs)
 
         # Initialize the best solution
@@ -143,7 +145,7 @@ class Heuristic_Operations(Point_Matrix):
         # Get data
         cluster_items = self.get_cluster_items()
 
-        temp_hubs = [0]*3
+        temp_hubs = [0]*len(self.cluster_hubs)
         for key, value in cluster_items.items():
             temp_hubs[key] = random.choice(value)
     

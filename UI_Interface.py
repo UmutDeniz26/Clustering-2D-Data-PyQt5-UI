@@ -53,6 +53,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.menu_clear_final_solution.triggered.connect(self.clear_final_solution)
         self.menu_open_data.triggered.connect(self.load_data_button)
         self.exit_menu.triggered.connect(self.exit_app)
+        self.exit_button.clicked.connect(self.exit_app)
 
         # Initialize side menu buttons
         self.init_side_buttons()
@@ -263,7 +264,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         if ret:
             str_dict = ", ".join( [ str(key) + ": " + str(value) for key, value in ret.items() ] )
             
-            if ret["auto"]:
+            # has ret key "auto"
+            if "auto" in ret.keys() and ret["auto"] == True:
                 self.add_data_infromation_panel("The clustering operation could not be successful with the given parameters!\nAuto parameters are used.")
 
             self.add_data_infromation_panel("\n\nParameters:\n" + str_dict)
@@ -326,7 +328,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         # Get the arguments for the clustering operation, respect to the sender
         if sender_name == 'K-Means':
-            dialog = Get_Data_Dialog(["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]])
+            dialog = Get_Data_Dialog(
+                ["Number of clusters: ", ["Init: ", "k-means++", "random"], "Max iterations: ", ["Algorithm: ", "auto", "full", "elkan"]],
+                ["3", "", "300", ""]
+                )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
                 
@@ -341,7 +346,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         elif sender_name == 'Affinity Propagation':
             dialog = Get_Data_Dialog(
-                ["Damping: ", "Max iterations: ", "Convergence iteration: "]
+                ["Damping: ", "Max iterations: ", "Convergence iteration: "],
+                ["0.5", "200", "15"]
             )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -355,7 +361,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 return
 
         elif sender_name == 'Mean Shift':
-            dialog = Get_Data_Dialog(["Bandwidth: ", "Max iterations: "])
+            dialog = Get_Data_Dialog(
+                ["Bandwidth: ", "Max iterations: "],
+                ["250", "300"]
+            )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
                 
@@ -367,21 +376,27 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 return
 
         elif sender_name == 'Spectral Clustering':
-            dialog = Get_Data_Dialog(["Number of clusters: ", ["Assign labels: ", "kmeans", "discretize"], "Eigen solver: ", "Random state: "])
+            dialog = Get_Data_Dialog(
+                ["Number of clusters: ", ["Assign labels: ", "kmeans", "discretize"], ["Eigen solver: ", "arpack", "lobpcg", "amg"], "Random state: "],
+                ["8", "", "", "None"] 
+            )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
                 
                 args_dict = { 
                     "n_clusters": int(data[0]) if data[0] != '' else 8, # Default value is 8
                     "assign_labels": data[1],
-                    "eigen_solver": data[2] if data[2] != '' else None, # Default value is None
+                    "eigen_solver": data[2],
                     "random_state": int(data[3]) if data[3] != '' else None, # Default value is None
                 }
             else:
                 return
 
         elif sender_name == 'Hierarchical Clustering':
-            dialog = Get_Data_Dialog(["Number of clusters: ", ["Linkage: ", "ward", "complete", "average", "single"], "Distance threshold: "])
+            dialog = Get_Data_Dialog(
+                ["Number of clusters: ", ["Linkage: ", "ward", "complete", "average", "single"], "Distance threshold: "],
+                ["2", "", "None"]
+            )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
                 
@@ -394,7 +409,10 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 return
 
         elif sender_name == 'DBSCAN':
-            dialog = Get_Data_Dialog(["Epsilon: ", "Min samples: ", "Metric: "])
+            dialog = Get_Data_Dialog(
+                ["Epsilon: ", "Min samples: ", "Metric: "],
+                ["0.5", "5", ""]
+            )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
                 
@@ -441,18 +459,25 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.clear_data_results_panel()
 
         if sender_name == 'Hill Climbing':
-            dialog = Get_Data_Dialog(["Max iterations: "])
+            dialog = Get_Data_Dialog(
+                ["Max iterations: ", "N_clusters: "],
+                ["1000", "3"]
+            )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
                 
                 args_dict = { 
                     "max_iterations": int(data[0]) if data[0] != '' else 1000, # Default value is 1000
+                    "n_clusters": int(data[1]) if data[1] != '' else 3, # Default value is 3
                 }
             else:
                 return
             
         elif sender_name == 'Simulated Annealing':
-            dialog = Get_Data_Dialog(["Max iterations: ", "Initial temperature: ", "Cooling rate: "])
+            dialog = Get_Data_Dialog(
+                ["Max iterations: ", "Initial temperature: ", "Cooling rate: ", "N_clusters: "],
+                ["1000", "100.0", "0.99", "3"]
+            )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
                 
@@ -460,6 +485,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                     "max_iterations": int(data[0]) if data[0] != '' else 1000, # Default value is 1000
                     "initial_temperature": float(data[1]) if data[1] != '' else 100.0, # Default value is 100.0
                     "cooling_rate": float(data[2]) if data[2] != '' else 0.99, # Default value is 0.99
+                    "n_clusters": int(data[3]) if data[3] != '' else 3, # Default value is 3
                 }
             else:
                 return
@@ -469,7 +495,7 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         self.progress_bar(0.4)
 
         # Run the clustering operation
-        ret = self.method_handler_clustering(sender_name, args_dict)
+        ret = self.method_handler_heuristics(sender_name, args_dict)
         
         # Print the results and plot the final solution
         if self.plot_final_solution() == False:
