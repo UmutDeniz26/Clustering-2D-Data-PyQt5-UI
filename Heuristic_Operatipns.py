@@ -9,9 +9,14 @@ class Heuristic_Operations(Point_Matrix):
 
     def method_handler_heuristics(self, method_name, arg_dict):
         if method_name == 'Hill Climbing':
-            return self.hill_climbing(arg_dict['max_iterations'], arg_dict['n_clusters'])
+            return self.hill_climbing(
+                arg_dict['max_iterations'], arg_dict['n_clusters'], arg_dict['swap_nodes_chance'], arg_dict['reallocate_node_chance']
+                )
         elif method_name == 'Simulated Annealing':
-            return self.simulated_annealing(arg_dict['max_iterations'], arg_dict['initial_temperature'], arg_dict['cooling_rate'], arg_dict['n_clusters'])
+            return self.simulated_annealing(
+                arg_dict['max_iterations'], arg_dict['initial_temperature'], arg_dict['cooling_rate'], arg_dict['n_clusters'],
+                arg_dict['swap_nodes_chance'], arg_dict['reallocate_node_chance']
+                )
         else:
             print("Method not found.")
 
@@ -24,7 +29,7 @@ class Heuristic_Operations(Point_Matrix):
         return total_distance
 
 
-    def hill_climbing(self, max_iterations=1000, n_clusters=3):
+    def hill_climbing(self, max_iterations=1000, n_clusters=3, swap_nodes_chance=0.1, reallocate_node_chance=0.1):
         # Get data
 
         # Initialize cluster hubs and get initial solution value
@@ -39,8 +44,8 @@ class Heuristic_Operations(Point_Matrix):
             temp_cluster_hubs = self.relocate_cluster_hubs()
             self.assign_new_clusters(self.cluster_hubs)
 
-            self.swap_nodes(self.get_data()) if random.random() < 0.1 else None
-            self.reallocate_nodes(self.get_data()) if random.random() < 0.1 else None
+            self.swap_nodes(self.get_data()) if random.random() < swap_nodes_chance else None
+            self.reallocate_node(self.get_data()) if random.random() < reallocate_node_chance else None
 
             if self.objective_function( self.get_data(), temp_cluster_hubs) < objective_score:
                 # Update the cluster hubs and the objective score
@@ -58,7 +63,7 @@ class Heuristic_Operations(Point_Matrix):
 
         return {"cluster_hubs": [hub.get_id() for hub in self.cluster_hubs], "value": self.objective_function( self.get_data(), self.cluster_hubs)}
 
-    def simulated_annealing(self, max_iterations=1000, initial_temperature=100.0, cooling_rate=0.99, n_clusters=3):
+    def simulated_annealing(self, max_iterations=1000, initial_temperature=100.0, cooling_rate=0.99, n_clusters=3, swap_nodes_chance=0.1, reallocate_node_chance=0.1):
         # Get data
         data = self.get_data()
         # Initialize cluster hubs and get initial solution value
@@ -82,8 +87,8 @@ class Heuristic_Operations(Point_Matrix):
             temp_cluster_hubs = self.relocate_cluster_hubs()
             self.assign_new_clusters(self.cluster_hubs)
 
-            self.swap_nodes(self.get_data()) if random.random() < 0.1 else None
-            self.reallocate_nodes(self.get_data()) if random.random() < 0.1 else None
+            self.swap_nodes(self.get_data()) if random.random() < swap_nodes_chance else None
+            self.reallocate_node(self.get_data()) if random.random() < reallocate_node_chance else None
 
             # Calculate the new objective score
             new_objective_score = self.objective_function(data, temp_cluster_hubs)
@@ -126,7 +131,7 @@ class Heuristic_Operations(Point_Matrix):
         return np.random.choice(self.get_data(), n_hubs, replace=False)
     
 
-    # Calculate the distance between two points
+    # Calculate the best cluster for a point
     def optimal_cluster(self, data, cluster_hubs):
         distances = []
         for i in range(len(cluster_hubs)):
@@ -164,7 +169,7 @@ class Heuristic_Operations(Point_Matrix):
         data[i].set_cluster_id( data[j].get_cluster_id() )
         data[j].set_cluster_id( temp )
                 
-    def reallocate_nodes(self, data):
+    def reallocate_node(self, data):
         # Random i value, non-hub
         possible_indexes = [i for i in range(len(data)) if data[i].get_id() not in [hub.get_id() for hub in self.cluster_hubs]]
         

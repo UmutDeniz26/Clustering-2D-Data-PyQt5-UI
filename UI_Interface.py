@@ -460,8 +460,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
 
         if sender_name == 'Hill Climbing':
             dialog = Get_Data_Dialog(
-                ["Max iterations: ", "N_clusters: "],
-                ["1000", "3"]
+                ["Max iterations: ", "N_clusters: ", "Swap nodes chance: ", "Reallocate node chance: "],
+                ["1000", "3", "0.1", "0.1"]
             )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -469,14 +469,16 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                 args_dict = { 
                     "max_iterations": int(data[0]) if data[0] != '' else 1000, # Default value is 1000
                     "n_clusters": int(data[1]) if data[1] != '' else 3, # Default value is 3
+                    "swap_nodes_chance": float(data[2]) if data[2] != '' else 0.1, # Default value is 0.1
+                    "reallocate_node_chance": float(data[3]) if data[3] != '' else 0.1, # Default value is 0.1
                 }
             else:
                 return
             
         elif sender_name == 'Simulated Annealing':
             dialog = Get_Data_Dialog(
-                ["Max iterations: ", "Initial temperature: ", "Cooling rate: ", "N_clusters: "],
-                ["1000", "100.0", "0.99", "3"]
+                ["Max iterations: ", "Initial temperature: ", "Cooling rate: ", "N_clusters: ", "Swap nodes chance: ", "Reallocate node chance: "],
+                ["1000", "100.0", "0.99", "3", "0.1", "0.1"]
             )
             if dialog.exec_() == QtWidgets.QDialog.Accepted:
                 data = dialog.get_input()
@@ -486,6 +488,8 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
                     "initial_temperature": float(data[1]) if data[1] != '' else 100.0, # Default value is 100.0
                     "cooling_rate": float(data[2]) if data[2] != '' else 0.99, # Default value is 0.99
                     "n_clusters": int(data[3]) if data[3] != '' else 3, # Default value is 3
+                    "swap_nodes_chance": float(data[4]) if data[4] != '' else 0.1, # Default value is 0.1
+                    "reallocate_node_chance": float(data[5]) if data[5] != '' else 0.1, # Default value is 0.1
                 }
             else:
                 return
