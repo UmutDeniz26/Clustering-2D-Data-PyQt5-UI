@@ -855,8 +855,3 @@ class UI_Interface(QMainWindow, Clustering_Operations, Heuristic_Operations):
         ax.set_ylabel('Y Label')
         return fig, ax
 
-
-if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    window = UI_Interface(template_path='Interface.ui')
-    sys.exit(app.exec_())

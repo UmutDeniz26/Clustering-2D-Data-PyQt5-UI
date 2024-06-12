@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="indexpage" kind="page">
+    <compoundname>index</compoundname>
+    <title>Final Project</title>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><anchor id="index_1md_README"/> Final Project Report</para>
+<para>Introduction:</para>
+<para>The software system described herein serves as a robust platform for conducting clustering and heuristic operations through an intuitive user interface. By integrating various algorithms and data manipulation functionalities, it empowers users to explore and analyze datasets effectively. This report delves into the system&apos;s objectives, features, and functionalities while omitting detailed class designs and specific results.</para>
+<para>Objective:</para>
+<para>The primary objective of this software system is to provide a user-friendly environment for performing clustering and heuristic operations on datasets. By encapsulating complex algorithms and data processing tasks into intuitive interfaces, the system aims to facilitate data analysis, exploration, and decision-making processes. Through efficient implementation and abstraction of algorithms, it aims to offer scalability and adaptability to diverse datasets and analytical scenarios.</para>
+<para>Class Functionalities</para>
+<para><orderedlist>
+<listitem><para>User Interface (UI) Class:</para>
+<para>Initializes the UI with a template path. Manages UI elements such as buttons, plotting, and data panels. Handles user interactions like manual run, clustering, heuristics, etc. Provides methods to update UI components based on operations. Handles loading and displaying data. Manages the main window and its functionalities.</para>
+</listitem><listitem><para>Point Matrix Class:</para>
+<para>Loads, saves, and clears data. Manages data related to points and clusters. Calculates distances, centers, and objectives. Handles data manipulation and storage.</para>
+</listitem><listitem><para>Point Class:</para>
+<para>Represents individual points with coordinates and cluster ID. Provides methods for setting and getting cluster IDs and coordinates.</para>
+</listitem><listitem><para>Heuristic Operations Class:</para>
+<para>Inherits from Point Matrix and handles heuristic algorithms. Implements methods like hill climbing, simulated annealing, etc. Calculates objective functions and optimal clusters. Manages cluster hubs and node swapping/relocation.</para>
+</listitem><listitem><para>Clustering Operations Class:</para>
+<para>Inherits from Point Matrix and deals with clustering algorithms. Implements clustering methods like k-means, affinity propagation, etc. Configures algorithm parameters and performs clustering. Handles different clustering techniques and their settings.</para>
+</listitem></orderedlist>
+</para>
+<para>Class Hierarchy:</para>
+<para><orderedlist>
+<listitem><para><ref refid="namespaceUI__Interface" kindref="compound">UI_Interface</ref>: ◦ Inherits from QMainWindow, <ref refid="namespaceClustering__Operations" kindref="compound">Clustering_Operations</ref>, and Heuristic_Operations. ◦ <ref refid="namespaceUI__Interface" kindref="compound">UI_Interface</ref> integrates functionalities from both clustering and heuristic operations. ◦ Manages the main application window and user interactions. ◦ Calls methods from <ref refid="namespaceClustering__Operations" kindref="compound">Clustering_Operations</ref> and Heuristic_Operations to perform clustering and heuristic tasks based on user input.</para>
+</listitem><listitem><para>Point_Matrix: ◦ Acts as a core data structure for managing points and clusters. ◦ Provides foundational methods for data loading, saving, and processing. ◦ <ref refid="namespaceClustering__Operations" kindref="compound">Clustering_Operations</ref> and Heuristic_Operations classes inherit from Point_Matrix.</para>
+</listitem><listitem><para>Point: ◦ Represents individual data points within the Point_Matrix. ◦ Each point has coordinates and a cluster ID, and methods to manipulate these attributes.</para>
+</listitem><listitem><para><ref refid="namespaceClustering__Operations" kindref="compound">Clustering_Operations</ref>: ◦ Inherits from Point_Matrix. ◦ Implements various clustering algorithms. ◦ Provides methods to configure and execute clustering tasks.</para>
+</listitem><listitem><para>Heuristic_Operations: ◦ Inherits from Point_Matrix. ◦ Implements heuristic algorithms for optimizing clustering results. ◦ Provides methods to configure and execute heuristic optimization tasks.</para>
+</listitem></orderedlist>
+</para>
+<para>Essential Dependencies:</para>
+<para><orderedlist>
+<listitem><para>PyQt5: ◦ Used for creating the graphical user interface (GUI). ◦ Provides the QMainWindow class for the main application window and other UI components.</para>
+</listitem><listitem><para>NumPy: ◦ Used for numerical operations and data manipulation. ◦ Provides support for arrays and mathematical functions.</para>
+</listitem><listitem><para>Matplotlib: ◦ Used for plotting and visualizing data. ◦ Provides functions to create static, animated, and interactive visualizations.</para>
+</listitem><listitem><para>OpenCV: ◦ Used for image processing tasks. ◦ Provides functionalities to convert images to pixmaps for display in the UI.</para>
+</listitem><listitem><para>Scikit-learn: ◦ Used for implementing clustering algorithms. ◦ Provides a wide range of machine learning and clustering tools, including k-means, DBSCAN, and more. </para>
+</listitem></orderedlist>
+</para>
+    </detaileddescription>
+    <location file="README.md"/>
+  </compounddef>
+</doxygen>

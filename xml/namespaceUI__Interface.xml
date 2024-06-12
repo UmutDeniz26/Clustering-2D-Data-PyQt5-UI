@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespaceUI__Interface" kind="namespace" language="Python">
+    <compoundname>UI_Interface</compoundname>
+    <innerclass refid="classUI__Interface_1_1UI__Interface" prot="public">UI_Interface::UI_Interface</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceUI__Interface_1a0633158914d21efb09cdda22ac4b155a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>def</type>
+        <definition>def UI_Interface.progress_bar_decorator</definition>
+        <argsstring>(time_delay)</argsstring>
+        <name>progress_bar_decorator</name>
+        <param>
+          <type>time_delay</type>
+          <defname>time_delay</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><verbatim>@brief Decorator to add a progress bar to the status bar.
+@param time_delay The delay for the progress bar.
+@return The wrapper function.
+@details This decorator adds a progress bar to the status bar and updates it based on the time delay.
+</verbatim> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="UI_Interface.py" line="27" column="1" bodyfile="UI_Interface.py" bodystart="27" bodyend="59"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="UI_Interface.py" line="1" column="1"/>
+  </compounddef>
+</doxygen>

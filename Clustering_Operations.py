@@ -187,21 +187,3 @@ class Clustering_Operations( Point_Matrix ):
         else:
             self.set_cluster_vector(dbscan.labels_)
             return {"eps": eps, "min_samples": min_samples, "metric": metric, "auto": False}
-
-# Test
-if __name__ == '__main__':
-    example_path = "src/points.txt"
-    pcd = Point_Matrix(example_path)
-    pcd.load_data()
-
-    clustering = Clustering_Operations(pcd)
-    clustering.dbscan(eps = 200, min_samples = 5, metric = 'euclidean')
-    print(clustering.get_cluster_vector())
-    
-    #clustering.kmeans(n_clusters = 3, max_iter = 300, init = 'k-means++', algorithm = 'auto')
-    #exit()
-    print(clustering.calculate_distances_from_center())
-    # all possible pairs
-    print([ (x.get_id(), y.get_id()) for x, y in clustering.calculate_all_possible_pairs()])
-    print(clustering.calculate_pair_objectives())
-    #print(clustering.calculate_pair_objectives())

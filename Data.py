@@ -371,6 +371,3 @@ class Point_Matrix:
         except:
             print("Error occurred while saving data.")
 
-if __name__ == '__main__':
-    pcd = Point_Matrix()
-    pcd.load_data("src/points.txt")

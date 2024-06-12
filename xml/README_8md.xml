@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="README_8md" kind="file" language="Markdown">
+    <compoundname>README.md</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">Final<sp/>Project<sp/>Report</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Introduction:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>software<sp/>system<sp/>described<sp/>herein<sp/>serves<sp/>as<sp/>a<sp/>robust<sp/>platform<sp/>for<sp/>conducting<sp/>clustering<sp/>and<sp/>heuristic<sp/>operations<sp/>through<sp/>an<sp/>intuitive<sp/>user<sp/>interface.<sp/>By<sp/>integrating<sp/>various<sp/>algorithms<sp/>and<sp/>data<sp/>manipulation<sp/>functionalities,<sp/>it<sp/>empowers<sp/>users<sp/>to<sp/>explore<sp/>and<sp/>analyze<sp/>datasets<sp/>effectively.<sp/>This<sp/>report<sp/>delves<sp/>into<sp/>the<sp/>system&apos;s<sp/>objectives,<sp/>features,<sp/>and<sp/>functionalities<sp/>while<sp/>omitting<sp/>detailed<sp/>class<sp/>designs<sp/>and<sp/>specific<sp/>results.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Objective:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>primary<sp/>objective<sp/>of<sp/>this<sp/>software<sp/>system<sp/>is<sp/>to<sp/>provide<sp/>a<sp/>user-friendly<sp/>environment<sp/>for<sp/>performing<sp/>clustering<sp/>and<sp/>heuristic<sp/>operations<sp/>on<sp/>datasets.<sp/>By<sp/>encapsulating<sp/>complex<sp/>algorithms<sp/>and<sp/>data<sp/>processing<sp/>tasks<sp/>into<sp/>intuitive<sp/>interfaces,<sp/>the<sp/>system<sp/>aims<sp/>to<sp/>facilitate<sp/>data<sp/>analysis,<sp/>exploration,<sp/>and<sp/>decision-making<sp/>processes.<sp/>Through<sp/>efficient<sp/>implementation<sp/>and<sp/>abstraction<sp/>of<sp/>algorithms,<sp/>it<sp/>aims<sp/>to<sp/>offer<sp/>scalability<sp/>and<sp/>adaptability<sp/>to<sp/>diverse<sp/>datasets<sp/>and<sp/>analytical<sp/>scenarios.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Class<sp/>Functionalities</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">1.<sp/>User<sp/>Interface<sp/>(UI)<sp/>Class:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Initializes<sp/>the<sp/>UI<sp/>with<sp/>a<sp/>template<sp/>path.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Manages<sp/>UI<sp/>elements<sp/>such<sp/>as<sp/>buttons,<sp/>plotting,<sp/>and<sp/>data<sp/>panels.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Handles<sp/>user<sp/>interactions<sp/>like<sp/>manual<sp/>run,<sp/>clustering,<sp/>heuristics,<sp/>etc.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Provides<sp/>methods<sp/>to<sp/>update<sp/>UI<sp/>components<sp/>based<sp/>on<sp/>operations.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Handles<sp/>loading<sp/>and<sp/>displaying<sp/>data.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Manages<sp/>the<sp/>main<sp/>window<sp/>and<sp/>its<sp/>functionalities.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">2.<sp/>Point<sp/>Matrix<sp/>Class:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Loads,<sp/>saves,<sp/>and<sp/>clears<sp/>data.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Manages<sp/>data<sp/>related<sp/>to<sp/>points<sp/>and<sp/>clusters.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Calculates<sp/>distances,<sp/>centers,<sp/>and<sp/>objectives.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Handles<sp/>data<sp/>manipulation<sp/>and<sp/>storage.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">3.<sp/>Point<sp/>Class:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Represents<sp/>individual<sp/>points<sp/>with<sp/>coordinates<sp/>and<sp/>cluster<sp/>ID.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Provides<sp/>methods<sp/>for<sp/>setting<sp/>and<sp/>getting<sp/>cluster<sp/>IDs<sp/>and<sp/>coordinates.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">4.<sp/>Heuristic<sp/>Operations<sp/>Class:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Inherits<sp/>from<sp/>Point<sp/>Matrix<sp/>and<sp/>handles<sp/>heuristic<sp/>algorithms.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Implements<sp/>methods<sp/>like<sp/>hill<sp/>climbing,<sp/>simulated<sp/>annealing,<sp/>etc.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Calculates<sp/>objective<sp/>functions<sp/>and<sp/>optimal<sp/>clusters.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Manages<sp/>cluster<sp/>hubs<sp/>and<sp/>node<sp/>swapping/relocation.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">5.<sp/>Clustering<sp/>Operations<sp/>Class:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Inherits<sp/>from<sp/>Point<sp/>Matrix<sp/>and<sp/>deals<sp/>with<sp/>clustering<sp/>algorithms.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Implements<sp/>clustering<sp/>methods<sp/>like<sp/>k-means,<sp/>affinity<sp/>propagation,<sp/>etc.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Configures<sp/>algorithm<sp/>parameters<sp/>and<sp/>performs<sp/>clustering.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Handles<sp/>different<sp/>clustering<sp/>techniques<sp/>and<sp/>their<sp/>settings.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Class<sp/>Hierarchy:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">1.<sp/>UI_Interface:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Inherits<sp/>from<sp/>QMainWindow,<sp/>Clustering_Operations,<sp/>and<sp/>Heuristic_Operations.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>UI_Interface<sp/>integrates<sp/>functionalities<sp/>from<sp/>both<sp/>clustering<sp/>and<sp/>heuristic<sp/>operations.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Manages<sp/>the<sp/>main<sp/>application<sp/>window<sp/>and<sp/>user<sp/>interactions.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Calls<sp/>methods<sp/>from<sp/>Clustering_Operations<sp/>and<sp/>Heuristic_Operations<sp/>to<sp/>perform<sp/>clustering<sp/>and<sp/>heuristic<sp/>tasks<sp/>based<sp/>on<sp/>user<sp/>input.</highlight></codeline>
+<codeline><highlight class="normal">2.<sp/>Point_Matrix:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Acts<sp/>as<sp/>a<sp/>core<sp/>data<sp/>structure<sp/>for<sp/>managing<sp/>points<sp/>and<sp/>clusters.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Provides<sp/>foundational<sp/>methods<sp/>for<sp/>data<sp/>loading,<sp/>saving,<sp/>and<sp/>processing.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Clustering_Operations<sp/>and<sp/>Heuristic_Operations<sp/>classes<sp/>inherit<sp/>from<sp/>Point_Matrix.</highlight></codeline>
+<codeline><highlight class="normal">3.<sp/>Point:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Represents<sp/>individual<sp/>data<sp/>points<sp/>within<sp/>the<sp/>Point_Matrix.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Each<sp/>point<sp/>has<sp/>coordinates<sp/>and<sp/>a<sp/>cluster<sp/>ID,<sp/>and<sp/>methods<sp/>to<sp/>manipulate<sp/>these<sp/>attributes.</highlight></codeline>
+<codeline><highlight class="normal">4.<sp/>Clustering_Operations:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Inherits<sp/>from<sp/>Point_Matrix.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Implements<sp/>various<sp/>clustering<sp/>algorithms.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Provides<sp/>methods<sp/>to<sp/>configure<sp/>and<sp/>execute<sp/>clustering<sp/>tasks.</highlight></codeline>
+<codeline><highlight class="normal">5.<sp/>Heuristic_Operations:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Inherits<sp/>from<sp/>Point_Matrix.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Implements<sp/>heuristic<sp/>algorithms<sp/>for<sp/>optimizing<sp/>clustering<sp/>results.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Provides<sp/>methods<sp/>to<sp/>configure<sp/>and<sp/>execute<sp/>heuristic<sp/>optimization<sp/>tasks.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Essential<sp/>Dependencies:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">1.<sp/>PyQt5:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Used<sp/>for<sp/>creating<sp/>the<sp/>graphical<sp/>user<sp/>interface<sp/>(GUI).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Provides<sp/>the<sp/>QMainWindow<sp/>class<sp/>for<sp/>the<sp/>main<sp/>application<sp/>window<sp/>and<sp/>other<sp/>UI<sp/>components.</highlight></codeline>
+<codeline><highlight class="normal">2.<sp/>NumPy:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Used<sp/>for<sp/>numerical<sp/>operations<sp/>and<sp/>data<sp/>manipulation.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Provides<sp/>support<sp/>for<sp/>arrays<sp/>and<sp/>mathematical<sp/>functions.</highlight></codeline>
+<codeline><highlight class="normal">3.<sp/>Matplotlib:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Used<sp/>for<sp/>plotting<sp/>and<sp/>visualizing<sp/>data.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Provides<sp/>functions<sp/>to<sp/>create<sp/>static,<sp/>animated,<sp/>and<sp/>interactive<sp/>visualizations.</highlight></codeline>
+<codeline><highlight class="normal">4.<sp/>OpenCV:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Used<sp/>for<sp/>image<sp/>processing<sp/>tasks.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Provides<sp/>functionalities<sp/>to<sp/>convert<sp/>images<sp/>to<sp/>pixmaps<sp/>for<sp/>display<sp/>in<sp/>the<sp/>UI.</highlight></codeline>
+<codeline><highlight class="normal">5.<sp/>Scikit-learn:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Used<sp/>for<sp/>implementing<sp/>clustering<sp/>algorithms.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>◦<sp/>Provides<sp/>a<sp/>wide<sp/>range<sp/>of<sp/>machine<sp/>learning<sp/>and<sp/>clustering<sp/>tools,<sp/>including<sp/>k-means,<sp/>DBSCAN,<sp/>and<sp/>more.</highlight></codeline>
+    </programlisting>
+    <location file="README.md"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,16 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node0 [label="Data.Point_Matrix",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classData_1_1Point__Matrix.html",tooltip=" "];
+  Node0 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 [label="Clustering_Operations.Clustering\l_Operations",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classClustering__Operations_1_1Clustering__Operations.html",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="UI_Interface.UI_Interface",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUI__Interface_1_1UI__Interface.html",tooltip=" "];
+  Node5 [label="Heuristic_Operations",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node5 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="QMainWindow",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node6 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

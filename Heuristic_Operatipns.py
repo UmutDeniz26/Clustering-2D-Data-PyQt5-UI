@@ -268,15 +268,3 @@ class Heuristic_Operations(Point_Matrix):
 
         # Reallocation
         data[i].set_cluster_id(j)
-
-
-#Test
-if __name__ == '__main__':
-    pcd = Point_Matrix("src/points.txt")
-    pcd.load_data()
-
-    heuristic_ops = Heuristic_Operations(pcd)
-    heuristic_ops.method_handler_heuristics('Hill Climbing', {'max_iterations': 1000, 'n_clusters': 3, 'swap_nodes_chance': 0.1, 'reallocate_node_chance': 0.1})
-
-    print(heuristic_ops.get_cluster_vector())
-    print(heuristic_ops.calculate_distances_from_center())
